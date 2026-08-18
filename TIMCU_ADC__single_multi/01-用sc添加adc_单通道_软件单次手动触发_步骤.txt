@@ -1,4 +1,31 @@
 
+1.   進入sc界面 --  点中左边的adc12  -- 点击ADD  --   会自动跳出 ADC12_0
+
+     ADC Clock source：       ULPCLK      (其他时钟源也应该可以考虑)    //默认32M
+     sample clock divider：   divide by 8     //默认4M
+
+    conversion mode：    single
+    conversion starting address：  0
+
+    enable repeat mode:    暂不勾选
+
+    memory 0 设置：
+       name：              0
+       input channel：        channel2
+       reference voltage ： VDDA    (默认)
+       sample period source：  sampling timer0    (默认)
+
+    optional  configuration 设置：
+       trigger mode：  trigger will auto step to  next memory converson register    (一个通道转换结束后，会自动触发下一个通道)
+
+    interrupt configuration设置：
+       enable interrupts：     mem0 result loaded interrupt 
+       interrupt priority；     default                  (默认)
+
+
+    Pinmux 设置：
+        adc12 peripheral：    ADC0
+        adc12 channel 2 pin： PA25/26   
 
 
 
