@@ -1,0 +1,40 @@
+
+1.   進入sc界面  ：  （同 06-01-uart-echo.txt）
+
+2. keil 魔法棒中设置：  勾选 “reset and run”
+
+
+3. 在main.c中添加下面的代码
+
+         #include "stdio.h"
+         #include "string.h"
+         void SendString(char *str);
+         char txBuf[100];
+
+         while (1) 
+         {
+           delay_cycles(32000000);
+           
+           sprintf(txBuf, "tst %d\r\n", 100);
+           SendString(txBuf);       
+
+         }
+             
+         void SendString(char *str)
+         {
+             while(*str != '\0')
+             {
+                 DL_UART_Main_transmitDataBlocking(UART_0_INST, *str++);
+             }
+         }
+
+
+
+
+
+
+
+
+
+
+

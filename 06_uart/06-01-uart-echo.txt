@@ -1,0 +1,68 @@
+
+1.   進入sc界面   
+
+     点中左边的uart  -- 点击ADD  --   会自动跳出 uart_0
+
+     Clock source：   BUSCLK      (其他时钟源也应该可以考虑)    //默认32M
+     clock divider：   divide by 1     //默认32M
+
+     Baud rate：    115200
+ 
+    advanced configuration 设置：
+       uart mode ：   normal  uart  mode    (默认)
+       communication direction：       tx and rx      (默认)
+
+ 
+    optional  configuration 设置：
+       trigger mode：  trigger will auto step to  next memory converson register    (一个通道转换结束后，会自动触发下一个通道)
+
+    interrupt configuration设置：
+       enable interrupts：     receive 
+       interrupt priority；     default                  (默认)
+
+
+    Pinmux 设置：
+        adc12 peripheral：    ADC0
+        adc12 channel 2 pin： PA25/26   
+
+
+2. keil 魔法棒中设置：  勾选 “reset and run”
+
+
+3. 在main.c中添加下面的代码
+
+         volatile uint8_t gEchoData = 0;
+         int main(void)
+         {
+             SYSCFG_DL_init();
+
+             NVIC_ClearPendingIRQ(UART_0_INST_INT_IRQN);
+             NVIC_EnableIRQ(UART_0_INST_INT_IRQN);
+             gEchoData = DL_UART_Main_receiveData(UART_0_INST);   //--add
+             
+             DL_SYSCTL_enableSleepOnExit();
+
+             while (1) 
+             {
+                 __WFI();
+             }
+         }
+
+         void UART_0_INST_IRQHandler(void)
+         {
+             switch (DL_UART_Main_getPendingInterrupt(UART_0_INST)) 
+             {
+                 case DL_UART_MAIN_IIDX_RX:
+
+                     gEchoData = DL_UART_Main_receiveData(UART_0_INST);
+                     DL_UART_Main_transmitData(UART_0_INST, gEchoData);
+                     break;
+                 default:
+                     break;
+             }
+         }
+
+
+
+
+

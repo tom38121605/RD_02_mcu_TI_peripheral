@@ -1,22 +1,35 @@
 
-1.   進入sc界面 --  点中左边的adc12  -- 点击ADD  --   会自动跳出 ADC12_0
+1.   進入sc界面  
+  
+      点中左边的adc12  -- 点击ADD  --   会自动跳出 ADC12_0
 
-     ADC Clock source：       ULPCLK      (其他时钟源也应该可以考虑)    //默认32M
-     sample clock divider：   divide by 8     //默认4M
+     sample clock config设置：
+        ADC Clock source：       ULPCLK      (其他时钟源也应该可以考虑)    //默认32M
+        sample clock divider：   divide by 8     //默认4M
 
-    conversion mode：    single
-    conversion starting address：  0
+    sample mode configuration设置：
+       conversion mode：                 single
+       conversion starting address：  0
 
-    enable repeat mode:    暂不勾选
+       enable repeat mode:              暂不勾选
+       tigger source          ：            software    （不使用定时器事件自动触发）
 
-    memory 0 设置：
-       name：              0
-       input channel：        channel2
-       reference voltage ： VDDA    (默认)
-       sample period source：  sampling timer0    (默认)
 
-    optional  configuration 设置：
-       trigger mode：  trigger will auto step to  next memory converson register    (一个通道转换结束后，会自动触发下一个通道)
+    adc conversion mem confiurations 设置：
+       memory 0 设置：
+          name：              0
+          input channel：        channel2
+          reference voltage ： VDDA    (默认)
+          sample period source：  sampling timer0    (默认)
+
+       optional  configuration 设置：
+          trigger mode：  trigger will auto step to  next memory converson register    (一个通道转换结束后，会自动触发下一个通道)
+
+
+    advanced configuration设置：
+       conversion resolution：  12-bits             (默认)
+       powerdown mode:     manual          (默认)
+       desired sample time 0:   125 us        
 
     interrupt configuration设置：
        enable interrupts：     mem0 result loaded interrupt 
@@ -28,7 +41,10 @@
         adc12 channel 2 pin： PA25/26   
 
 
-2. 在main.c中添加下面的代码
+2. keil 魔法棒中设置：  勾选 “reset and run”
+
+
+3. 在main.c中添加下面的代码
 
          volatile bool gCheckADC;
          volatile uint16_t gAdcResult;
