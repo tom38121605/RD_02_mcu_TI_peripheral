@@ -1,0 +1,56 @@
+
+
+1.   進入sc界面  （设置MFPCLK）
+     
+    点中左边的SYSTL
+
+    MFPCLK设置：
+        enable MFPCLK：    勾选 
+
+
+1.   進入sc界面    （设置DAC）
+  
+    点中左边的DAC12 
+
+    basic operation configuraion设置：
+        enable adc：     勾选   
+        positive ref：     VDDA
+        negative ref：    VSSA
+        enable adc output：     勾选   
+
+    advanced configuraion设置：
+        output resolution：                 12-bit   
+        dac and output amplifer：       output and input amplifer on
+ 
+
+2. keil 魔法棒中设置：  勾选 “reset and run”
+
+
+3. 在main.c中添加下面的代码
+
+         #include "ti_msp_dl_config.h"
+          
+         #define REF_VOL   3300 
+         #define  OUTPUT_VOL 2500 
+
+         int main(void)
+         {
+             uint32_t idacval;
+
+             SYSCFG_DL_init();
+
+
+             idacval = (OUTPUT_VOL * 4095) / REF_VOL;
+
+             DL_DAC12_output12(DAC0, idacval);
+             DL_DAC12_enable(DAC0);
+
+             while (1) {
+                 __WFI();
+             }
+         }
+
+
+
+
+
