@@ -1,5 +1,5 @@
 
-1.   進入sc界面  
+1.   進入sc界面  （设置完毕后，保存sc到当前工程）
   
     点中左边的TIMER  -- 点击ADD  --   会自动跳出TIMER_0  
 
@@ -15,13 +15,18 @@
        timer clock divider:   divided by 2                   //16M
   
        timer clock precaler:   256
+
        timer clock frequency:  62.5KHz             （自动计算而出）
+       timer period range:  x - y  ms             （自动计算而出）
 
        timer mode:  periodic down conting      (默认)
-       disired  timered period：   1s 
+       desired  timered period：   1s 
 
     interrupt config 设置：
        enable interrupt：  zero event   
+
+    Pinmux 设置：
+       timer peripheral：  TIMA0   
 
 
 2. keil 魔法棒中设置：  勾选 “reset and run”

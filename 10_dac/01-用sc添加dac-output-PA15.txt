@@ -1,6 +1,6 @@
 
 
-1.   進入sc界面  （设置MFPCLK）
+1.   進入sc界面  （先设置MFPCLK）    
      
     点中左边的SYSTL
 
@@ -8,7 +8,7 @@
         enable MFPCLK：    勾选 
 
 
-1.   進入sc界面    （设置DAC）
+1.   進入sc界面    （设置DAC）     （设置完毕后，保存sc到当前工程）
   
     点中左边的DAC12 
 

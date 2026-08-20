@@ -1,0 +1,112 @@
+
+1.   進入sc界面  （设置完毕后，保存sc到当前工程）
+  
+    点中左边的TIMER-PWM  -- 点击ADD  --   会自动跳出PWM_0  
+
+     name：                           PWM_0      
+     selected peripheral：       TIMG0        //先在下面pinmux的地方设置
+
+     pwm profiles：   customer   （默认）
+
+    basic config 设置：
+       timer clock source：  BUSCLK                        //32M
+       timer clock divider:   divided by 1                   //32M
+  
+       timer clock precaler:   1
+
+       calculated clock frequency:   32m                       （自动计算而出）
+       timer clock infomation:        488.28hz  -  16m      （自动计算而出）
+
+
+       pwm period count：             32000                       
+       calculated pwm freqency:     1000 hz                  （自动计算而出）
+
+       pwm mode:                       edge-aligned down counting      (默认)
+       pwm channels：                pwm-channel0，  pwm-channel1
+
+       pwm channel0 设置：
+          counter compare value：  9599                   （自动计算而出）
+          desired duty cycle:   70                  
+  
+       pwm channel1 设置：   (同理)
+          counter compare value： 1600                   （自动计算而出）
+          desired duty cycle:   50                  
+
+    interrupt config 设置：
+       enable interrupt：  无        (默认)
+
+    Pinmux 设置：
+       timer peripheral：          TIMG0   
+       capture/compare pin：  PA12/5   
+       capture/compare pin：  PA13/6  
+
+
+2. keil 魔法棒中设置：  勾选 “reset and run”
+
+
+3. 在main.c中添加下面的代码
+
+         #include "ti_msp_dl_config.h"
+
+         #define PWM_PERIOD 32000
+         uint32_t iperiod = PWM_PERIOD;
+
+         void pwm_setduty(float duty, uint8_t ichannel);
+         void pwm_setfreq(uint32_t ifreq);
+
+
+         void pwm_setduty(float duty, uint8_t ichannel)  //To be verified
+         {
+             uint32_t icomparevalue;
+             icomparevalue = iperiod - iperiod*duty;   
+
+             if(ichannel == 0)
+             {
+                 DL_TimerG_setCaptureCompareValue(PWM_0_INST, icomparevalue, DL_TIMER_CC_0_INDEX);
+             }
+             else if(ichannel == 1)
+             {
+                 DL_TimerG_setCaptureCompareValue(PWM_0_INST, icomparevalue, DL_TIMER_CC_1_INDEX);
+             }
+         }
+
+
+         void pwm_setfreq(uint32_t ifreq)     //To be verified
+         {
+             if(ifreq == 0U) return;
+
+             uint32_t iloadval = PWM_0_INST_CLK_FREQ / ifreq - 1U;
+
+             DL_TimerG_setLoadValue(PWM_0_INST, iloadval);
+
+             iperiod = iloadval + 1U;
+         }
+
+         int main(void)
+         {
+             SYSCFG_DL_init();
+             
+             DL_TimerG_startCounter(PWM_0_INST);
+             
+             
+             pwm_setfreq(500);
+             
+             pwm_setduty(0.5, 0);
+             pwm_setduty(0.8, 1);   
+             
+
+             while (1) 
+             {
+             }
+         }
+
+
+
+
+
+
+
+
+
+
+
