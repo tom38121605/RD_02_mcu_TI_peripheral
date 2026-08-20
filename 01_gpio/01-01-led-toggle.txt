@@ -3,9 +3,8 @@
   
     点中左边的GPIO  -- 点击ADD  --   会自动跳出 GPIO_GRP_0  (下面由name修改成LED)
 
-    sample clock config设置：
-        name：    LED     
-        Port：      any   （默认）
+     name：    LED     
+     Port：      any   （默认）
 
     group pins   -- 点击ADD  --   会自动跳出  PIN_0   // 第一个引脚PIN_0不需要点ADD，早已存在
         name：             PIN_0     
