@@ -1,0 +1,50 @@
+
+1.   進入sc界面  
+  
+    点中左边的GPIO  -- 点击ADD  --   会自动跳出 GPIO_GRP_0  (下面由name修改成LED)
+
+    sample clock config设置：
+        name：    LED     
+        Port：      any   （默认）
+
+    group pins   -- 点击ADD  --   会自动跳出  PIN_0   // 第一个引脚PIN_0不需要点ADD，早已存在
+        name：             PIN_0     
+        direction：        output   （默认）
+        initiao value：   cleared  （默认）
+
+        digital IOMUX features 设置：
+            internal resistor：   no  resistor          //no pull     
+            invert：                 disable   （默认）
+
+        assigned port：        PORTA
+        assigned pin：        14
+
+
+    Pinmux ...  设置：
+       PIN_0：   PA14/7      //一般由上面的配置自动生成
+  
+
+2. keil 魔法棒中设置：  勾选 “reset and run”
+
+
+3. 在main.c中添加下面的代码
+
+         #include "ti_msp_dl_config.h"
+
+         int main(void)
+         {
+             SYSCFG_DL_init();
+
+             while (1) 
+             {
+                 delay_cycles(32000000/5);        
+                 DL_GPIO_togglePins(LED_PORT, LED_PIN_0_PIN);
+             }
+             
+         }
+
+
+
+
+
+
