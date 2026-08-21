@@ -1,0 +1,115 @@
+
+1.   進入sc界面  （设置完毕后，保存sc到当前工程）
+  
+      点中左边的adc12  -- 点击ADD  --   会自动跳出 ADC12_0
+
+     sample clock config设置：
+        ADC Clock source：       ULPCLK      (其他时钟源也应该可以考虑)    //默认32M
+        sample clock divider：   divide by 8     //默认4M
+
+    sample mode configuration设置：
+       conversion mode：                 single
+       conversion starting address：  0
+
+       enable repeat mode:             勾选   
+       sampling mode:                     auto     (默认)             //好像是自动省电  （待验证）
+       tigger source          ：            software    （不使用定时器事件自动触发）
+
+
+    adc conversion mem confiurations 设置：
+       memory 0 设置：
+          name：              0
+          input channel：        channel2
+          reference voltage ： VDDA    (默认)
+          sample period source：  sampling timer0    (默认)
+
+       optional  configuration 设置：
+          trigger mode：  trigger will auto step to  next memory converson register    (一个通道转换结束后，会自动触发下一个通道)
+
+
+    advanced configuration设置：
+       conversion resolution：  12-bits             (默认)
+       powerdown mode:         auto         (默认)
+       desired sample time 0:   125 us        //或64us   
+
+    interrupt configuration设置：
+       enable interrupts：     mem0 result loaded interrupt 
+       interrupt priority；     default                  (默认)
+
+
+    Pinmux 设置：
+        adc12 peripheral：    ADC0
+        adc12 channel 2 pin： PA25/26   
+
+
+2. keil 魔法棒中设置：  勾选 “reset and run”
+
+
+3. 在main.c中添加下面的代码
+
+         #include "ti_msp_dl_config.h"
+         #include "stdio.h"
+         #include "string.h"
+
+         void SendString(char *str);
+         char txBuf[100];
+
+         volatile bool gCheckADC;
+         volatile uint16_t gAdcResult;
+
+         void delay_ms(uint32_t ms)
+         {
+             while(ms--)
+             {
+                 delay_cycles(CPUCLK_FREQ/1000);
+             }
+         }
+
+         int main(void)
+         {
+             SYSCFG_DL_init();
+
+             NVIC_EnableIRQ(ADC12_0_INST_INT_IRQN);
+
+             DL_ADC12_startConversion(ADC12_0_INST);
+
+             while (1) 
+             {
+
+                 //delay_ms(1000);
+                 delay_ms(2);
+          
+                 
+                 gCheckADC = false;
+                 //DL_ADC12_startConversion(ADC12_0_INST);
+
+                 while (false == gCheckADC) ;
+
+                 gAdcResult = DL_ADC12_getMemResult(ADC12_0_INST, DL_ADC12_MEM_IDX_0);
+                 
+                 sprintf(txBuf, "adc2 %d\r\n", gAdcResult);
+                 SendString(txBuf);       
+
+                 //DL_ADC12_enableConversions(ADC12_0_INST);
+             }
+
+         }
+
+         void ADC12_0_INST_IRQHandler(void)
+         {
+             switch (DL_ADC12_getPendingInterrupt(ADC12_0_INST)) {
+                 case DL_ADC12_IIDX_MEM0_RESULT_LOADED:
+                     gCheckADC = true;
+                     break;
+                 default:
+                     break;
+             }
+         }
+
+         void SendString(char *str)
+         {
+             while(*str != '\0')
+             {
+                 DL_UART_Main_transmitDataBlocking(UART_0_INST, *str++);
+             }
+         }

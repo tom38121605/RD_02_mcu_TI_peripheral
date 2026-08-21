@@ -1,0 +1,15 @@
+
+void delay_count(uint32_t inum)
+{
+    while(inum--)
+       __NOP();
+}
+
+
+void delay_ms(uint32_t ms)
+{
+    while(ms--)
+    {
+        delay_cycles(CPUCLK_FREQ/1000);
+    }
+}
