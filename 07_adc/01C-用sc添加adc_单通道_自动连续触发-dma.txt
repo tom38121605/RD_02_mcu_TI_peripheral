@@ -1,0 +1,165 @@
+
+1.   進入sc界面  （设置完毕后，保存sc到当前工程）
+  
+      点中左边的adc12  -- 点击ADD  --   会自动跳出 ADC12_0
+
+     sample clock config设置：
+        ADC Clock source：       ULPCLK      (其他时钟源也应该可以考虑)    //默认32M
+        sample clock divider：   divide by 8     //默认4M
+
+    sample mode configuration设置：
+       conversion mode：                 single
+       conversion starting address：  0
+
+       enable repeat mode:             勾选   
+       sampling mode:                     auto     (默认)             //下面的time 0 设置的125us自动stop采样
+       tigger source          ：            software    （不使用定时器事件自动触发）
+
+
+    adc conversion mem confiurations 设置：
+       memory 0 设置：
+          name：              0
+          input channel：        channel2
+          reference voltage ： VDDA    (默认)
+          sample period source：  sampling timer0    (默认)
+
+       optional  configuration 设置：
+          trigger mode：  trigger will auto step to  next memory converson register    (一个通道转换结束后，会自动触发下一个通道)
+
+
+    advanced configuration设置：
+       conversion resolution：  12-bits             (默认)
+       powerdown mode:         manual            //不需要省电
+       desired sample time 0:   62.5ns   
+
+    interrupt configuration设置：
+       enable interrupts：     dma done
+       interrupt priority；     default                  (默认)
+
+    dma configuration设置：
+       configure dma triigger：    勾选
+       enable dma triigger：    勾选
+
+    dma chnnel设置：
+       name：                                  DMA_CH0        //由下面的PINMUX选择
+       CHANNEL ID：                       0
+       address mode：                    fixed addr to block addr
+       source length：                      half word （2bytes）
+      destination length：                half word （2bytes）
+      destination addr direction：    increment
+       CHANNEL ID：                      0
+       CHANNEL ID：                      0
+
+
+    Pinmux 设置：   （dma）
+        dma channel：    any(DMA_CH0)
+        adc12 channel 2 pin： PA25/26   
+
+    Pinmux 设置：
+        adc12 peripheral：    ADC0
+        adc12 channel 2 pin： PA25/26   
+
+
+2. keil 魔法棒中设置：  勾选 “reset and run”
+
+
+3. 在main.c中添加下面的代码
+
+         #include "ti/driverlib/dl_adc12.h"
+         #include "ti_msp_dl_config.h"
+
+
+         #define ADC_BUF_LEN   10
+         uint16_t gADCSamples[ADC_BUF_LEN];
+
+         #include "stdio.h"
+         #include "string.h"
+
+         void SendString(char *str);
+         char txBuf[100];
+
+         volatile uint8_t flg_adcin = 0;
+
+
+         void delay_ms(uint32_t ms)
+         {
+             while(ms--)
+             {
+                 delay_cycles(CPUCLK_FREQ/1000);
+             }
+         }
+
+
+         int main(void)
+         {
+             SYSCFG_DL_init();
+
+         ////    DL_DMA_setSrcAddr(DMA, DMA_CH0_CHAN_ID, DL_ADC12_getMemResultAddress(ADC12_0_INST,DL_ADC12_MEM_IDX_0 ) );////    
+         ////    DL_DMA_setDestAddr(DMA, DMA_CH0_CHAN_ID, (uint32_t)&gADCSamples[0]);
+         ////    DL_DMA_enableChannel(DMA, DMA_CH0_CHAN_ID);
+         ////    NVIC_EnableIRQ(ADC12_0_INST_INT_IRQN);
+         ////    DL_ADC12_startConversion(ADC12_0_INST);
+             
+             //DMA源：MEM0存储器地址
+             DL_DMA_setSrcAddr(DMA, DMA_CH0_CHAN_ID, DL_ADC12_getMemResultAddress(ADC12_0_INST, DL_ADC12_MEM_IDX_0));
+             DL_DMA_setDestAddr(DMA, DMA_CH0_CHAN_ID, (uint32_t)&gADCSamples[0]);
+             DL_DMA_setTransferSize(DMA, DMA_CH0_CHAN_ID, ADC_BUF_LEN);
+             
+             DL_DMA_setSrcIncrement(DMA, DMA_CH0_CHAN_ID, DL_DMA_ADDR_UNCHANGED);
+             DL_DMA_setDestIncrement(DMA, DMA_CH0_CHAN_ID, DL_DMA_ADDR_INCREMENT);
+             
+             DL_DMA_setSrcWidth(DMA, DMA_CH0_CHAN_ID, DL_DMA_WIDTH_HALF_WORD);
+             DL_DMA_setDestWidth(DMA, DMA_CH0_CHAN_ID, DL_DMA_WIDTH_HALF_WORD);
+
+             DL_DMA_enableChannel(DMA, DMA_CH0_CHAN_ID);
+
+             DL_ADC12_enableDMA(ADC12_0_INST);
+             DL_ADC12_enableDMATrigger(ADC12_0_INST, DL_ADC12_DMA_MEM0_RESULT_LOADED);
+
+             NVIC_EnableIRQ(ADC12_0_INST_INT_IRQN);
+             DL_ADC12_startConversion(ADC12_0_INST);
+             
+             
+             delay_ms(10);
+
+             while (1)
+             {
+                //delay_ms(1);  //ok
+             
+                if(flg_adcin==1)
+                {
+                    flg_adcin=0;
+                       
+                       
+                    sprintf(txBuf, "adc %d\r\n", gADCSamples[0]);
+                    SendString(txBuf);              
+                   
+                    DL_ADC12_enableConversions(ADC12_0_INST);
+                    DL_ADC12_startConversion(ADC12_0_INST);          
+                
+                }
+
+             }
+         }
+
+         void ADC12_0_INST_IRQHandler(void)
+         {
+             switch (DL_ADC12_getPendingInterrupt(ADC12_0_INST))
+             {
+                 case DL_ADC12_IIDX_DMA_DONE:
+                     DL_ADC12_disableConversions(ADC12_0_INST);
+                     
+                     //Process
+                     //__BKPT();
+                     
+                     flg_adcin = 1;
+                     
+                     //DL_ADC12_enableConversions(ADC12_0_INST);
+                     //DL_ADC12_startConversion(ADC12_0_INST);
+                     break;
+                 default:
+                     break;
+             }
+         }
+
+

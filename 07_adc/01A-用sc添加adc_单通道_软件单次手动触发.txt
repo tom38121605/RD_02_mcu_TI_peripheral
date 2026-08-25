@@ -12,7 +12,7 @@
        conversion starting address：  0
 
        enable repeat mode:              暂不勾选
-       sampling mode:                     auto     (默认)             //好像是自动省电
+       sampling mode:                     auto     (默认)              //下面的time 0 设置的125us自动stop采样
        tigger source          ：            software    （不使用定时器事件自动触发）
 
 
