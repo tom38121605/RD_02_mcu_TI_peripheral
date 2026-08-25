@@ -1,0 +1,32 @@
+
+
+1. tranfer smode讲解：  
+ 
+   1). 假如数据流是： adc mem0（固定）   -->  sbuf[1000] （递增）
+
+       。single            --   adcmem0 依次传1个数到 sbuf[0], sbuf[1], ..., sbuf[999]  
+       。block             --   adcmem0 一下子传1000个相同的数到  sbuf[0], sbuf[1], ..., sbuf[999]     //优先
+  
+       。repeat single     --   遇到dma done事件后， 再回到sbuf[0]重新传数据
+       。repeat block      --   遇到dma done事件后， 再回到sbuf[0]重新传数据
+   
+
+   2). 假如数据流是： isrc[10]（递增）   -->  idest[10] （递增）
+
+       。single            --   isrc[0],..., isrc[999] 依次传1个数到 idest[0],..., idest[999]  
+       。block             --   isrc[ ]一下子传10个数到  idest[ ]     //优先
+  
+       。repeat single     --   遇到dma done事件后， 再回到isrc[0]重新传数据
+       。repeat block      --   遇到dma done事件后， 再回到isrc[0]重新传数据
+
+
+
+
+
+
+
+
+ 
+
+
+

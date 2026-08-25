@@ -47,15 +47,13 @@
        source length£∫                      half word £®2bytes£©
       destination length£∫                half word £®2bytes£©
       destination addr direction£∫    increment
-       CHANNEL ID£∫                      0
-       CHANNEL ID£∫                      0
 
 
     Pinmux …Ë÷√£∫   £®dma£©
         dma channel£∫    any(DMA_CH0)
         adc12 channel 2 pin£∫ PA25/26   
 
-    Pinmux …Ë÷√£∫
+    Pinmux …Ë÷√£∫   £®adc£©
         adc12 peripheral£∫    ADC0
         adc12 channel 2 pin£∫ PA25/26   
 
