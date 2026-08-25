@@ -27,7 +27,15 @@
          。在代码中，  加入： DL_DMA_startTransfer(DMA, DMA_CH0_CHAN_ID);
 
    2).  假如数据流是： adc mem0（固定）   -->  sbuf[1000] （递增）
-         。在sc中，勾选 enable dma triigger    （ADC 转换一次到MEM0，ADC硬件自动输出 DMA 请求脉冲，触发 DMA 通道搬运数据）
+
+             。dma configuration设置：
+                    configure dma triigger：    勾选
+                    enable dma triigger：    勾选
+                    dma samples count：    1
+                    enable dma triggers:     mem0 result loaded interrupt
+
+          （ADC 转换一次到MEM0，ADC硬件自动输出 DMA 请求脉冲，触发 DMA 通道搬运数据）
+
 
 
 

@@ -29,7 +29,7 @@
 
     advanced configuration设置：
        conversion resolution：  12-bits             (默认)
-       enable fifo mode:          不勾选               (默认)
+       enable fifo mode:          勾选
 
        powerdown mode:         manual            //不需要省电
        desired sample time 0:   62.5ns   
@@ -41,8 +41,12 @@
     dma configuration设置：
        configure dma triigger：    勾选
        enable dma triigger：    勾选
-       dma samples count：    1
-       enable dma triggers:     mem0 result loaded interrupt
+       dma samples count：    6
+       enable dma triggers:     mem10 result loaded interrupt
+
+
+//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
 
     dma chnnel设置：
        name：                                  DMA_CH0        //由下面的PINMUX选择
