@@ -17,7 +17,7 @@
        timer clock precaler:   256
 
        timer clock frequency:  62.5KHz             （自动计算而出）
-       timer period range:  x - y  ms             （自动计算而出）
+       timer period range:  x - y  ms             （自动计算而出可设置的最小至最大延时）
 
        timer mode:  periodic down conting      (默认)
        desired  timered period：   1s 
