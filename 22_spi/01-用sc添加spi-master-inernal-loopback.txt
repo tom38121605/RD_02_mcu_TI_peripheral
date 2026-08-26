@@ -1,0 +1,76 @@
+
+1.   進入sc界面  （设置完毕后，保存sc到当前工程）
+  
+    点中左边的SPI  -- 点击ADD  --   会自动跳出 SPI_0  
+
+     name：    SPI_0     
+ 
+    quick profiles 设置：      
+       spi profiles ：  custom     （默认）
+ 
+    basic configuration 设置：      
+       spi initialization configuration 设置：
+            mode select： controller         （主机）
+
+           clock configuration 设置：
+               clock source：    busclk      //32M
+               clock divider：  divided by 1
+
+               target bit rate (hz):   500 000
+              calc bit rate :            500 000.00
+
+               frame  format:      motorola 4-wire     （默认）
+               clock polarity:       low      （默认）
+               phase:                 data capture on first clock   （默认）
+               data frame size:   8     （默认）
+               bit order:            msb     （默认）
+
+              spi controller basic configuration 设置：
+                  chip select:  CS0
+
+    advanced  configuration 设置： 
+          （默认）
+        spi controller advanced  configuration 设置： 
+             enable internal loopback:  勾选
+
+
+    Pinmux ...  设置：
+       sck：     PA17
+       pico：   PA16
+       poci：   PA18
+       cs0：    PA2
+  
+
+2. keil 魔法棒中设置：  勾选 “reset and run”
+
+
+3. 在main.c中添加下面的代码
+
+         #include "ti_msp_dl_config.h"
+
+         volatile uint8_t gRxData, gTxData;
+         int main(void)
+         {
+             SYSCFG_DL_init();
+
+             gTxData = 1;
+
+             while (1) {
+                 /* Transmit data and wait to receive it */
+                 DL_SPI_transmitData8(SPI_0_INST, gTxData);
+                 gRxData = DL_SPI_receiveDataBlocking8(SPI_0_INST);
+                 /* Toggle LED and USER_TEST pin */
+                 //DL_GPIO_togglePins(GPIO_LEDS_PORT,
+                //    GPIO_LEDS_USER_LED_1_PIN | GPIO_LEDS_USER_TEST_PIN);
+
+                 /* Pause code execution to allow user to check value of gRxData */
+                 __BKPT(0);
+                 gTxData++;
+             }
+         }
+
+
+
+
+
+
