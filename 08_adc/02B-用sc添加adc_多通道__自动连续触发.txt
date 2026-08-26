@@ -13,22 +13,23 @@
        conversion end address：       1
 
        enable repeat mode:              勾选
-      sampling mode:                     auto     (默认)             //下面的time 0 设置的125us自动stop采样
+       sampling mode:                     auto     (默认)             //下面的time 0 设置的125us自动stop采样
        tigger source          ：            software    （不使用定时器事件自动触发）
 
 
-    adc conversion mem confiurations 设置：
-       memory 0 设置：
-          name：              0
-          input channel：        channel2
-          reference voltage ： VDDA    (默认)
-          sample period source：  sampling timer0    (默认)
+       adc conversion mem confiurations 设置：
+          memory 0 设置：
+             name：              0
+             input channel：        channel2
+             device pin name ：   PA25              //由下面的pinmux选择
+             reference voltage ： VDDA    (默认)
+             sample period source：  sampling timer0    (默认)
 
-          optional  configuration 设置：
-              trigger mode：  trigger will auto step to  next memory converson register    (一个通道转换结束后，会自动触发下一个通道)
+             optional  configuration 设置：
+                 trigger mode：  trigger will auto step to  next memory converson register    (一个通道转换结束后，会自动触发下一个通道)
 
-       memory 1,2,3 设置：   (同理 memory 0  设置不同的adc引脚)
-          ......
+          memory 1,2,3 设置：   (同理 memory 0  设置不同的adc引脚)
+             ......
 
 
     advanced configuration设置：
