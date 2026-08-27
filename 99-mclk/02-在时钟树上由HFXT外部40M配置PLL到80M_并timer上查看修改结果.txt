@@ -1,0 +1,84 @@
+
+0. 修改前，后时钟树配置如下：
+
+    修改前：
+       SYSPLLMUX选SYSOSC -- PDIV /1 -- QDIV x2  -- VCO 64M   
+       HSCLKMUX选SYSOSC      //ULPCLK, MCLK, CPUCLK 都是 32M
+
+    修改前：
+       SYSPLLMUX 选HFCLK  --  PDIV /1 -- QDIV x4 -- VCO 160M  --  SYSPLL2设80M 
+       HSCLKMUX选SYSPLL2  --  ULPCLK, MCLK, CPUCLK 分别设 40M, 80M, 80M
+
+
+0. 修改前，后TMA0配置如下：
+
+    CLOCK CONFIGuration设置： 
+
+       timer clock source:    BUSCLK
+       timer clock divider:    DIV by 8
+       calculated timer clock source:  4M      //修改前
+       timer clock prescaler:    256
+
+
+       timer clock source:    BUSCLK
+       timer clock divider:    DIV by 8
+       calculated timer clock source:  10M    //修改后
+       timer clock prescaler:    256
+
+
+0. 修改前，后的CPUCLK_FREQ：
+
+      #define CPUCLK_FREQ                  32000000
+      #define CPUCLK_FREQ                  80000000
+
+
+----------------------------------以下开始修改----------------------------------------------------
+
+1.  進入sc界面  （设置完毕后，保存sc到当前工程）
+  
+    点中左边的SYSCTL：  
+
+    graphical clock configuration  设置：
+       use clock tree:   勾选
+  
+1.  时钟树配置：
+
+     外部时钟设置：
+          。点选  HFXT
+          。enable HFXT:  勾选
+          。input frequency(M):  40
+          。HFXT startup timer:  10  
+    
+     时钟设置：
+
+           EXHFMUX选XTAL  -- SYSPLLMUX 选HFCLK  --  PDIV /1 -- QDIV x4 -- VCO 160M  --  SYSPLL2设80M  -- HSCLKMUX选SYSPLL2  
+           --  ULPCLK, MCLK, CPUCLK 分别设 40M, 80M, 80M
+
+
+1.   進入sc界面  
+  
+    点中左边的SYSCTL：  
+
+    CLOCK configuration 设置：
+       force default clock configuration:    勾选    （默认）
+       enable check for clock stbilization:  勾选  
+ 
+
+
+2. keil 魔法棒中设置：  勾选 “reset and run”
+
+
+3. 在main.c中添加下面的代码
+
+         。。。
+
+
+
+
+
+
+
+
+
+
+

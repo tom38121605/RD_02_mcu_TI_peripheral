@@ -1,0 +1,63 @@
+
+
+操作思路：
+   。 在SYSCTL中， 勾选use clock tree
+   。 在 clock output and FCC  使能clock out， 引脚选PA14,  时钟选 SYSPLL1   （可能会跳出错误提示，先忽略，配置好后面的就会自动消除）
+   。 在时钟树的basic里面，设置 SYSPLL1的值 （VCO的值要大于等于80M， SYSPLL1的值要小于40M），如设置SYSPLL1为24M  //PA14上会显示24M的波形
+   。 之后，也可以把 clock out的时钟源选SYSOSC 32M     //PA14上会显示 32M的波形
+
+
+1.  進入sc界面  （设置完毕后，保存sc到当前工程）
+  
+    点中左边的SYSCTL：  
+
+    graphical clock configuration  设置：
+       use clock tree:   勾选
+  
+1.  时钟树配置，点击左边一列，上面的时钟树，clock view 下面两项设置：：
+
+    点击basic 设置：
+    设置：   SYSPLLMUX选SYSOSC -- PDIV /1 -- QDIV x3  -- VCO 96M   
+                把SYSPLL1设置为24M  （PA14的频率不能大于40M, SYSPLL1本身可以大于40M）
+
+    设置：   HSCLKMUX选SYSOSC      //ULPCLK, MCLK, CPUCLK 都是 32M
+
+    点击 clock output and FCC 设置：
+
+        在EXCLKMUX， 选择 SYSPLL1
+        点选 右上角的 clk_out, 在左下角显示一列CLK_OUT的配置项
+            nable clockout：  勾选
+
+           pinmux ... 配置：
+               CLK_OUT:    PA14/7
+
+
+1.   進入sc界面  
+  
+    点中左边的SYSCTL：  
+
+    CLOCK configuration 设置：
+       force default clock configuration:    勾选    （默认）
+       enable check for clock stbilization:  勾选  
+    
+    CLOCK output（CLK_OUT） 设置：    //不要设置， 忽略跳过
+       (主要项变成灰色)
+
+
+2. keil 魔法棒中设置：  勾选 “reset and run”
+
+
+3. 在main.c中添加下面的代码
+
+         。。。
+
+
+
+
+
+
+
+
+
+
+

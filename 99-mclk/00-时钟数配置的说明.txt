@@ -1,0 +1,25 @@
+
+0. BUSCLK 就是 MCLK   //PD1
+ 
+1.  要在SYSCTL中， 勾选“use clock tree”
+
+2. 有同学反映外部晶振不稳定，象uart等
+2. 有同学分享外部晶振启动时间HFXT Startup Time，要设置为10
+
+3. SYSPLL0 和 SYSPLL1显示 0.0000Hz，**不是配置错，是 SysConfig 的显示逻辑：PLL 模块输出通路没有被任何 MUX 选中使用，就显示 0Hz
+
+4. VCO 最好设置成160M, 这个值句torries说是经过校验的
+4. VCO的最小值是80M, 最大值是480M                                      //待验证
+
+5. SYSPLL1 连引脚PA14时不能超过40M   (主要是PA14不能超过40M)
+
+6. ULPCLK 最大不能超过40M                   //PD0 
+
+7. 官网的时钟例子中，下面两项都是勾选的
+
+    CLOCK configuration 设置：
+       force default clock configuration:    勾选    （默认）
+       enable check for clock stbilization:  勾选  
+
+   
+
