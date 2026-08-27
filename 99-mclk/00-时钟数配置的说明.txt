@@ -1,4 +1,9 @@
 
+疑问：   把MCLK设置到80M后
+            SPI的时钟源是 BUSCLK,  div/1，  频率是80M            //OK
+            UART的时钟源也是 BUSCLK,  div/1，  频率是40M     //为什么不是80M?
+
+
 0. BUSCLK 就是 MCLK   //PD1
  
 1.  要在SYSCTL中， 勾选“use clock tree”
@@ -21,5 +26,23 @@
        force default clock configuration:    勾选    （默认）
        enable check for clock stbilization:  勾选  
 
-   
+8. 提高内部SYSOSC 的精度
+
+    。要在 PA2 (RO5C)- GND 接一颗 100kΩ ±0.1%，25ppm/°c精密电阻，SYSO5C精度可以提升到约+1% 以内，改善 UART、SPI时序精度
+
+        . 默认出厂校准 SYSOSC：±2%（常温），温漂大
+- FCL 内部电阻模式：±1%
+- FCL 外部 100k 0.1% 电阻：**±0.5% 全温域**
+       . SYSOSC 的精度可以从默认的约 ±2.6% 提升到 ±1% 以内
+
+    。程序中开启FCL   
+       SYSCTL->SOCLOCK.SYSOSCFCLCTL = SYSCTL_SYSOSCFCLCTL_KEY_VALUE | SYSCTL_SYSOSCFCLCTL_SETUSEFCL_TRUE;  //(0x2A << 24) | (1 << 0)
+
+    。不用 FCL 时:PA2 可以做普通 GPIOSysConfig 里把引脚功能切为 GPIO，ROSC 功能关闭完全当作普通 I0 使用，引脚是空即可，不需要外接电阻
+
+
+
+
+
+
 
