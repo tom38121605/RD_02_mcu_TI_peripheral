@@ -1,10 +1,17 @@
 
 疑问：   把MCLK设置到80M后
             SPI的时钟源是 BUSCLK,  div/1，  频率是80M            //OK
-            UART的时钟源也是 BUSCLK,  div/1，  频率是40M     //为什么不是80M?
+            UART0的时钟源也是 BUSCLK,  div/1，  频率是40M     //为什么不是80M?
 
 
-0. BUSCLK 就是 MCLK   //PD1
+答：  见mspm0g3507数据手册， p55页， 表8-1
+
+        --PD1:   SPI          //80M
+        --PD0:   UART0     //40M
+
+
+
+0. BUSCLK 有时是 MCLK （ PD1的外设, 如spi） ， 有时是ULPCLK  （ PD0的外设， 如uart0）
  
 1.  要在SYSCTL中， 勾选“use clock tree”
 
