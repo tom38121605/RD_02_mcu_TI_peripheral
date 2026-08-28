@@ -1,0 +1,13 @@
+
+实际上，MSPM0 仅支持 UART 双工模式，但可以通过另一种方法来实现单线收发功能：
+
+1). 在物理连接上将 Tx 和 Rx 引脚合并。
+
+2). 将接收端的 Tx 引脚配置为高阻态（High-Z）。您可以通过设置相应 PINCMx 寄存器中的 Z1 位来实现这一点；
+    相关信息可在《MSPM0 C-Series Technical Reference Manual》（MSPM0 C 系列技术参考手册）的“IOMUX”章节中找到
+
+
+
+
+
+
