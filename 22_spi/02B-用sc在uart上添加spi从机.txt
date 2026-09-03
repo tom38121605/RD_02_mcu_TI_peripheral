@@ -1,0 +1,134 @@
+
+（测试uart设置：  uart0， 2M， pb0 tx， pb1 rx）
+
+//1.   進入sc界面  （设置完毕后，保存sc到当前工程）     
+  
+    点中左边的SPI  -- 点击ADD  --   会自动跳出 SPI_0  (下面name改成SPI_1 )
+
+     name：    SPI_1     
+ 
+    quick profiles 设置：      
+       spi profiles ：  custom     （默认）
+ 
+    basic configuration 设置：      
+       spi initialization configuration 设置：
+            mode select： controller         （主机）
+
+           clock configuration 设置：
+               clock source：    busclk      //32M   （默认）
+               clock divider：  divided by 1               
+
+               target bit rate (hz):   500 000
+              calc bit rate :            500 000.00
+
+               frame  format:      motorola 4-wire     （默认）
+               clock polarity:       low      （默认）
+               phase:                 data capture on first clock   （默认）
+               data frame size:   8     （默认）
+               bit order:            msb     （默认）
+
+              spi controller basic configuration 设置：
+                  chip select:  CS0
+
+    advanced  configuration 设置： 
+          （默认）
+        spi controller advanced  configuration 设置： 
+             enable internal loopback:  不勾选                          //外部要把 PICO 和 POCI短接起来
+
+
+    Pinmux ...  设置：
+       spi peripheral：  SPI1
+       sck：     PA17
+       pico：   PA16
+       poci：   PA18
+       cs0：    PB6
+ 
+
+//2. keil 魔法棒中设置：  勾选 “reset and run”
+
+
+//3. 在main.c中添加下面的代码
+
+         #include "ti_msp_dl_config.h"
+
+         #include "stdio.h"
+         #include "string.h"
+
+
+         void SendString(char *str);
+         char txBuf[100];
+
+
+         volatile uint8_t gEchoData = 0;
+
+         volatile uint8_t gRxData, gTxData;
+
+         void delay_ms(uint32_t ms)
+         {
+             while(ms--)
+             {
+                 delay_cycles(CPUCLK_FREQ/1000);
+             }
+         }
+
+
+         int main(void)
+         {
+             SYSCFG_DL_init();
+
+             gTxData = 1;
+
+             while (1) 
+             {
+             
+                 delay_ms(1000);
+
+                 sprintf(txBuf, "data %d %d\r\n", gTxData, gRxData);
+                 SendString(txBuf);  
+
+                 DL_SPI_transmitData8(SPI_1_INST, gTxData);
+                 gRxData = DL_SPI_receiveDataBlocking8(SPI_1_INST);
+
+
+                 //__BKPT(0);
+                 
+                 sprintf(txBuf, "data %d %d\r\n\r\n", gTxData, gRxData);
+                 SendString(txBuf);  
+
+                 gTxData++;
+             }
+         }
+
+         void UART_0_INST_IRQHandler(void)
+         {
+             switch (DL_UART_Main_getPendingInterrupt(UART_0_INST)) 
+             {
+                 case DL_UART_MAIN_IIDX_RX:
+
+                     gEchoData = DL_UART_Main_receiveData(UART_0_INST);
+                     DL_UART_Main_transmitData(UART_0_INST, gEchoData);
+                     break;
+                 default:
+                     break;
+             }
+         }
+
+         void SendString(char *str)
+         {
+             while(*str != '\0')
+             {
+                 DL_UART_Main_transmitDataBlocking(UART_0_INST, *str++);
+             }
+         }
+
+
+
+
+
+
+
+
+
+
+
+
