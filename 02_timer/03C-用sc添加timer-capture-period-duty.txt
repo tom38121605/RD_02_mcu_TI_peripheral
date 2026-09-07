@@ -1,0 +1,178 @@
+
+
+说明1： 注意下面2个地方的设置，容易误设置成 channel 0 ：
+
+          capture  mode：      combined capture down couting
+          enable interrupt：    channel 1 compare down event ， zero event   
+
+说明2： 时间戳拍照流程
+
+         第1个是下降沿：  触发CC0捕获，拍照到CC1,  触发CC1下降沿中断，不读取计数值，做同步信号 设 gSynced = true
+         第2个是上升沿：  触发CC0捕获，拍照到CC0,  因是上升沿，不触发中断  （但在CC0中拍照保存了计数值）
+         第3个是下降沿： 触发CC0捕获，拍照到CC1,  触发CC1下降沿中断. 读取拍照的计数值。
+         回到while， 计算周期和占空比
+
+说明3： single 是一个引脚的意思。因为点 multi，会跳出一个选 channel 的选项，可选多个引脚组合（待了解）。  
+
+说明4： Combined Capture 就是选的是 single。外面一个 CC0 的引脚，但这个引脚也绑定到了 CC1
+            外部只接 1 根线；CC0、CC1 两个硬件寄存器同时工作，一个抓下降沿CC1，一个抓上升沿CC0
+
+
+1.   進入sc界面  （设置完毕后，保存sc到当前工程）
+  
+    点中左边的TIMER  -- 点击ADD  --   会自动跳出 CAPTURE_0
+
+     name：                           CAPTURE_0      
+     selected peripheral：       TIMG0     
+
+     timer profiles：   customer   （默认）
+
+ 
+    basic config 设置：
+       timer clock source：  BUSCLK                        //32M
+       timer clock divider:   divided by 1                   //32M
+  
+       timer clock precaler:   256
+
+       timer clock frequency:  125KHz             （自动计算而出）
+       timer period range:  x - y  ms             （自动计算而出可设置的最小至最大延时）
+
+       timer mode:  periodic down conting      (默认)
+       desired  timered period：   524.29ms 
+
+    Capture configuration 设置：
+       input capture mode ：        single
+       capture triggle configuration ：        external pin
+       capture  mode：                             Edge time down counting          //向下计数
+       Capture edge detection mode：      Rising edge detecion                 //上升沿触发拍照
+
+       input channal ：                             capture channel0
+
+
+    interrupt config 设置：
+       enable interrupt：  channel 0 compare down event ， zero event   
+
+
+    Pinmux 设置：
+       capture timer peripheral：  TIMG0   
+       capture/compare pin：       PA12   
+
+
+2. keil 魔法棒中设置：  勾选 “reset and run”
+
+
+
+3. 在main.c中添加下面的代码
+
+         #include "ti_msp_dl_config.h"
+
+         #include "stdio.h"
+         #include "string.h"
+
+         void SendString(char *str);
+         char txBuf[100];
+
+         volatile uint8_t gEchoData = 0;
+
+         void delay_ms(uint32_t ms)
+         {
+             while(ms--)
+             {
+                 delay_cycles(CPUCLK_FREQ/1000);
+             }
+         }
+
+         volatile uint32_t gCaptureCnt;
+         volatile bool gSynced;
+         volatile bool gCheckCaptures;
+         uint32_t gLoadValue;
+
+         int main(void)
+         {
+             volatile static uint32_t pwmPeriod;
+
+             SYSCFG_DL_init();
+
+             gLoadValue = DL_TimerG_getLoadValue(CAPTURE_0_INST);
+
+             gSynced        = false;
+             gCheckCaptures = false;
+
+
+             DL_TimerG_setCoreHaltBehavior( CAPTURE_0_INST, DL_TIMER_CORE_HALT_IMMEDIATE);
+             DL_TimerG_setCoreHaltBehavior(PWM_0_INST, DL_TIMER_CORE_HALT_IMMEDIATE);
+
+             NVIC_EnableIRQ(CAPTURE_0_INST_INT_IRQN);
+             DL_TimerG_startCounter(CAPTURE_0_INST);
+             DL_TimerG_startCounter(PWM_0_INST);
+
+             while (1) 
+             {    
+                 delay_ms(1000);
+                 while (false == gCheckCaptures) ;
+
+                 gCheckCaptures = false;
+
+                 pwmPeriod = gLoadValue - gCaptureCnt;
+                 
+                 sprintf(txBuf, "Period %d\r\n", pwmPeriod);
+                 SendString(txBuf);           
+                 
+             }
+         }
+
+         void CAPTURE_0_INST_IRQHandler(void)
+         {
+             switch (DL_TimerG_getPendingInterrupt(CAPTURE_0_INST)) 
+             {
+                 case DL_TIMERG_IIDX_CC0_DN:
+                 
+                     if (gSynced == true)   //第3个是pwm的下降沿，   
+                     {
+                         gCaptureCnt = DL_TimerG_getCaptureCompareValue(CAPTURE_0_INST, DL_TIMER_CC_0_INDEX);
+                         gCheckCaptures = true;
+                     } 
+                     
+                     else     //第1个是pwm的下降沿做同步信号     （第2个是pwm的上升沿，不会触发中断，但会拍照计数值到CC0）                  
+                         gSynced = true;
+                     
+                     
+                     DL_TimerG_setTimerCount(CAPTURE_0_INST, gLoadValue);   // 收到同步信号后（或者完成一个pwm周期后），重新装载。             
+                     break;
+                     
+                     
+                 case DL_TIMERG_IIDX_ZERO:
+                     gSynced = false;    //没有检测到pwm信号
+                     break;
+                     
+                 default:
+                     break;
+             }
+         }
+
+         void UART_0_INST_IRQHandler(void)
+         {
+             switch (DL_UART_Main_getPendingInterrupt(UART_0_INST)) 
+             {
+                 case DL_UART_MAIN_IIDX_RX:
+
+                     gEchoData = DL_UART_Main_receiveData(UART_0_INST);
+                     DL_UART_Main_transmitData(UART_0_INST, gEchoData);
+                     break;
+                 default:
+                     break;
+             }
+         }
+
+         void SendString(char *str)
+         {
+             while(*str != '\0')
+             {
+                 DL_UART_Main_transmitDataBlocking(UART_0_INST, *str++);
+             }
+         }
+
+
+
+
+
