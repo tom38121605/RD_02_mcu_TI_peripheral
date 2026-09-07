@@ -5,7 +5,6 @@
           capture  mode：      combined capture down couting
           enable interrupt：    channel 1 compare down event ， zero event   
 
-
 说明2： 时间戳拍照流程
 
          第1个是下降沿：  触发CC0捕获，拍照到CC1,  触发CC1下降沿中断，不读取计数值，做同步信号 设 gSynced = true
@@ -13,7 +12,9 @@
          第3个是下降沿： 触发CC0捕获，拍照到CC1,  触发CC1下降沿中断. 读取拍照的计数值。
          回到while， 计算周期和占空比
 
-说明3： Combined Capture 就是选的是 single。外面一个 CC0 的引脚，但这个引脚也绑定到了 CC1
+说明3： single 是一个引脚的意思。因为点 multi，会跳出一个选 channel 的选项，可选多个引脚组合（待了解）。  
+
+说明4： Combined Capture 就是选的是 single。外面一个 CC0 的引脚，但这个引脚也绑定到了 CC1
             外部只接 1 根线；CC0、CC1 两个硬件寄存器同时工作，一个抓下降沿CC1，一个抓上升沿CC0
 
 
