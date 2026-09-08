@@ -1,5 +1,5 @@
 
-1.   進入sc界面  （配置led   PA14）
+1.   先配置led ，進入sc界面  （ PA0）
 
     （参考： 01-用sc添加led-toggle.txt）
 
@@ -21,9 +21,9 @@
         digital IOMUX features 设置：
             internal resistor：   pull up resistor          //***重要 
             invert：                 disable   （默认）
-            input filter：          three ULPCLK cycles   （默认）
+            input filter：          three ULPCLK cycles   
 
-        assigned port：       PORTAB
+        assigned port：       PORTB
         assigned pin：        21
 
     interrupts/events  设置：
@@ -31,7 +31,7 @@
        triggle polarity：  triggle on falling edge
 
     Pinmux ...  设置：
-       PIN_0：   PA21/20      //一般由上面的配置自动生成
+       PIN_0：   PB21/20     
   
 
 2. keil 魔法棒中设置：  勾选 “reset and run”

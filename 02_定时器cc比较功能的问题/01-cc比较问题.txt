@@ -1,0 +1,8 @@
+
+
+https://e2e.ti.com/support/microcontrollers/arm-based-microcontrollers-group/arm-based-microcontrollers/f/arm-based-microcontrollers-forum/1350779/mspm0g3507-timer-compare-mode
+
+
+
+定时器cc比较功能，官网说用pwm替代
+
