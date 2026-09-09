@@ -8,25 +8,23 @@
 
      timer profiles：   customer   （默认）
 
- 
-
     basic config 设置：
-       timer clock source：  BUSCLK                        //32M
-       timer clock divider:   divided by 2                   //16M
+       timer clock source：           BUSCLK                        //32M
+       timer clock divider:            divided by 2                   //16M
   
-       timer clock precaler:   256
+       timer clock precaler:          256
 
-       timer clock frequency:  62.5KHz             （自动计算而出）
-       timer period range:  x - y  ms             （自动计算而出可设置的最小至最大延时）
+       timer clock frequency:       62.5KHz             （自动计算而出）
+       timer period range:           x - y  ms             （自动计算而出可设置的最小至最大延时）
 
-       timer mode:  periodic down conting      (默认)
+       timer mode:                        periodic down conting      (默认)
        desired  timered period：   1s 
 
     interrupt config 设置：
-       enable interrupt：  zero event   
+       enable interrupt：               zero event   
 
     Pinmux 设置：
-       timer peripheral：  TIMA0   
+       timer peripheral：             TIMA0   
 
 
 2. keil 魔法棒中设置：  勾选 “reset and run”

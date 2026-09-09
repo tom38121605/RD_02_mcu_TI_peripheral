@@ -16,11 +16,11 @@
             invert：                 disable   （默认）
 
         assigned port：        PORTA
-        assigned pin：        14
+        assigned pin：        33
 
 
     Pinmux ...  设置：
-       PIN_0：   PA14/7      //一般由上面的配置自动生成
+       PIN_0：   PA0/33      //一般由上面的配置自动生成
   
 
 2. keil 魔法棒中设置：  勾选 “reset and run”

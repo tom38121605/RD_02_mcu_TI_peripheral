@@ -41,28 +41,6 @@
 
          #include "ti_msp_dl_config.h"
 
-         int main(void)
-         {
-             SYSCFG_DL_init();
-
-             while (1) 
-             {
-                uint32_t AAA;
-                
-                 //delay_cycles(CPUCLK_FREQ/5);
-
-                 AAA = DL_GPIO_readPins(BUTTON_0_PORT, BUTTON_0_PIN_1_PIN);
-                 
-                 if(AAA)
-                     DL_GPIO_setPins(LED_PORT, LED_PIN_0_PIN);
-                 else
-                     DL_GPIO_clearPins(LED_PORT, LED_PIN_0_PIN);            
-             }
-             
-         }
-
-         #include "ti_msp_dl_config.h"
-
          volatile uint8_t flg_key1 =0;
 
 
