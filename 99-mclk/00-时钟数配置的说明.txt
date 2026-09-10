@@ -10,9 +10,14 @@
         --PD0:   UART0     //40M
 
 
-
 0. BUSCLK 有时是 MCLK （ PD1的外设, 如spi） ， 有时是ULPCLK  （ PD0的外设， 如uart0）
- 
+      ? BUSCLK：选择当前总线时钟作为 TIMx 的时钟源。当前总线时钟取决于电源域。
+
+          – 若 TIMx 实例位于电源域 1 (PD1)，请参考 MCLK。
+
+          – 若 TIMx 实例位于电源域 0 (PD0)，请参考 ULPCLK。
+
+
 1.  要在SYSCTL中， 勾选“use clock tree”
 
 2. 有同学反映外部晶振不稳定，象uart等
