@@ -1,0 +1,167 @@
+
+
+疑问1：  如何设置clock触发CC0的门槛值， 下面的设置没有用
+           number of edges to detect:        6000    //设置任何值在示波器上看都是看定时器14us后出cc0中断
+
+
+
+1.   進入sc界面  （设置完毕后，保存sc到当前工程）
+  
+    点中左边的TIMER  -- 点击ADD  --   会自动跳出COMPARE_0  
+
+     name：                           COMPARE_0       
+     selected peripheral：       TIMG6    
+
+     timer profiles：   customer   （默认）
+
+    basic config 设置：
+       timer clock source：           BUSCLK                        //80M
+       timer clock divider:            divided by 8                    
+  
+       timer clock precaler:          256
+
+       timer clock frequency:      39.06 kHz             （自动计算而出）
+       timer period range:           x - y  ms             （自动计算而出可设置的最小至最大延时）
+
+       number of edges to detect:        6000
+
+       compare config 设置：
+          compare trigger configuration：   event trigger
+
+          compare mode：             edge count down counting
+
+
+    interrupt config 设置：
+       enable interrupt：               load event   
+
+    Pinmux 设置：
+       timer peripheral：             TIMg6  
+
+
+
+2. keil 魔法棒中设置：  勾选 “reset and run”
+
+
+3. 在main.c中添加下面的代码
+
+
+         #include "ti_msp_dl_config.h"
+
+         #include "stdio.h"
+         #include "string.h"
+
+         volatile uint8_t flg_cc0=0;
+
+         void delay_ms(uint32_t ms);
+
+         void iputs1(char *msg);
+         void iputbytes1(uint8_t *msg, uint32_t ilen);
+         void Send_Data_To_UART1 (uint8_t c);
+
+
+         void SendString(char *str);
+         char txBuf[100];
+
+         volatile uint8_t gEchoData = 0;
+
+
+         void delay_ms(uint32_t ms)
+         {
+             while(ms--)
+             {
+                 delay_cycles(CPUCLK_FREQ/1000);
+             }
+         }
+
+         void iputs1(char *msg)
+         {
+            while(*msg)
+            Send_Data_To_UART1(*msg++);   
+         }
+
+         void iputbytes1(uint8_t *msg, uint32_t ilen)
+         {
+            while(ilen--)
+            Send_Data_To_UART1(*msg++);
+         }
+
+         void Send_Data_To_UART1 (uint8_t c)
+         {
+            DL_UART_Main_transmitDataBlocking(UART_0_INST, c);
+         }
+
+         int main(void)
+         {
+             SYSCFG_DL_init();
+             
+             
+             DL_GPIO_clearPins(GPIO_LEDS_USER_LED_1_PORT,(GPIO_LEDS_USER_LED_1_PIN ));
+             delay_ms(2000);
+             DL_GPIO_setPins(GPIO_LEDS_USER_LED_1_PORT,(GPIO_LEDS_USER_LED_1_PIN ));
+             delay_ms(2000);
+
+
+
+             NVIC_EnableIRQ(COMPARE_0_INST_INT_IRQN);
+
+             DL_TimerG_startCounter(COMPARE_0_INST);
+             //DL_SYSCTL_enableSleepOnExit();
+             while (1) 
+             {
+                 //__WFI();
+                 
+                 if(flg_cc0 ==1)
+                 {
+                     flg_cc0 =0;
+                     
+                     while(1)
+                     {
+                        DL_GPIO_clearPins(GPIO_LEDS_USER_LED_1_PORT,(GPIO_LEDS_USER_LED_1_PIN ));
+                        delay_ms(500);
+                        
+                        DL_GPIO_setPins(GPIO_LEDS_USER_LED_1_PORT,(GPIO_LEDS_USER_LED_1_PIN ));
+                        delay_ms(500);
+
+                     }
+
+                  }
+                     
+             }
+         }
+
+         void COMPARE_0_INST_IRQHandler(void)
+         {
+             switch (DL_TimerG_getPendingInterrupt(COMPARE_0_INST)) 
+             {
+                 case DL_TIMERG_IIDX_LOAD:
+                     //DL_GPIO_togglePins(GPIO_LEDS_USER_LED_1_PORT,(GPIO_LEDS_USER_LED_1_PIN ));
+                     flg_cc0 =1;
+
+             
+                     break;
+                 default:
+                     break;
+             }
+         }
+
+         void UART_0_INST_IRQHandler(void)
+         {
+            switch (DL_UART_Main_getPendingInterrupt(UART_0_INST)) 
+            {
+               case DL_UART_MAIN_IIDX_RX:
+
+                  gEchoData = DL_UART_Main_receiveData(UART_0_INST);
+                  DL_UART_Main_transmitData(UART_0_INST, gEchoData);
+                  break;
+                  
+               default:
+                  break;
+            }
+         }
+
+
+
+
+
+
+

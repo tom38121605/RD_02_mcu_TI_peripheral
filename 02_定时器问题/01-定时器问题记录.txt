@@ -4,6 +4,9 @@
 
 2.  compare向上计数功能，没有调通  （向下可以）
 2.  compare 如何同时选cc0 和 cc1两个通道，没有调通   
+2. compare 内部clk触发，下面的设置没有用
+       number of edges to detect:        6000    //设置任何值在示波器上看都是看定时器14us后出cc0中断
+
 
 
 
