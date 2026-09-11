@@ -1,0 +1,250 @@
+﻿
+#include "gpio.h"     //--add
+
+BSP_LED_On(LED2);  //test，？
+ 
+
+
+manus 1.6
+
+
+C:\workspace\ommo_nrf\nRF5_SDK_17.1.0_ddde560\components\ommo\comm_device.hpp
+
+rem 这git describe --dirty：生成版本号，形如v7018-201-g01cba3b67-dirty，带 dirty 代表本地有未提交修改
+rem 这for /f 把这条命令输出的整行文字抓出来，存进变量 VERSION
+rem 这usebackq：允许`反引号包裹里面的 git 命令，执行并捕获输出
+rem 这tokens=*：整行完整读取，不截断空格
+rem 这%% F 是循环临时变量，接收 git 输出内容，VERSION里面只会保留最后一行（这里只有一行）
+
+cmd.exe /C "D:\ti\mspm0_sdk_2_05_01_00\tools\keil\syscfg.bat '$P' cmsis_dsp_fft_q15.syscfg"
+
+
+
+ 
+#define CAPTURE_0_INST_LOAD_VALUE                                      (65535U) //(65499U)
+
+
+65499
+64512
+
+65535
+64548
+
+
+===========================
+
+https://wiki.lckfb.com/zh-hans/dmx/beginner
+
+
+https://e2e.ti.com/support/microcontrollers/arm-based-microcontrollers-group/arm-based-microcontrollers/f/arm-based-microcontrollers-forum/1371145/mspm0g3507-timer-capture-compare-mode-differences
+
+https://e2e.ti.com/support/microcontrollers/arm-based-microcontrollers-group/arm-based-microcontrollers/f/arm-based-microcontrollers-forum/1318710/mspm0g3507-timg-compare-match-output-no-work
+
+https://e2e.ti.com/support/microcontrollers/arm-based-microcontrollers-group/arm-based-microcontrollers/f/arm-based-microcontrollers-forum/1497365/mspm0g3507-timer-in-compare-mode-issue-when-value-compared-equals-0
+
+
+
+============================
+
+
+The sych data in the project 13506
+
+ 
+
+D:\ti\mspm0_sdk_2_05_01_00\source\third_party\CMSIS\Core\Include
+
+cmd.exe /C "D:\ti\mspm0_sdk_2_05_01_00\tools\keil\syscfg.bat '$P' empty.syscfg"
+
+
+
+
+
+==================DS CC0==============================
+
+#include "ti_msp_dl_config.h"
+
+volatile bool gCompareInterruptFlag = false;
+
+int main(void)
+{
+    SYSCFG_DL_init(); // 初始化系统及外设
+
+    // 1. 配置 TIMG0 为向上计数模式（假设 SysConfig 中已设好时钟、预分频、周期等）
+    //    注意：这里的初始化应包含将 TIMG0 设置为 Periodic Up 模式
+    //    DL_TimerG_initTimerMode(TIMG0, &gTIMG0TimerConfig);
+
+    // 2. 设置 CC0 的比较值 = 100
+    DL_TimerG_setCaptureCompareValue(TIMG0, 100, DL_TIMER_CC_0_INDEX);
+
+    // 3. 使能 CC0 向上比较事件的中断
+    DL_TimerG_enableInterrupt(TIMG0, DL_TIMERG_INTERRUPT_CC0_UP_EVENT);
+
+    // 4. 使能 NVIC 中断
+    NVIC_EnableIRQ(TIMG0_INT_IRQn);
+
+    // 5. 启动 TIMG0 计数器
+    DL_TimerG_startCounter(TIMG0);
+
+    while (1) {
+        if (gCompareInterruptFlag) {
+            gCompareInterruptFlag = false;
+            // 在此处理比较中断事件，例如翻转 LED
+        }
+    }
+}
+
+// TIMG0 的中断服务函数
+void TIMG0_IRQHandler(void)
+{
+    switch (DL_TimerG_getPendingInterrupt(TIMG0)) {
+        case DL_TIMERG_IIDX_CC0_UP:
+            // 计数器向上计数到 CC0 (100) 时，进入此分支
+            gCompareInterruptFlag = true;
+            break;
+        default:
+            break;
+    }
+}
+
+
+
+=================DS 拍照 timg0 cc0===========================
+
+timg0的拍照到timg0的cc0里，怎么操作
+
+void TIMA0_IRQHandler(void)
+{
+    switch (DL_TimerA_getPendingInterrupt(TIMA0)) {
+        case DL_TIMERA_IIDX_CC0_DN:  // 假设 TIMA0 捕获到了信号
+        {
+            // 1. 读取 TIMG0 当前的计数值 (CTR)
+            uint16_t timg0_cnt = DL_TimerG_getTimerCount(TIMG0);
+            
+            // 2. 手动把这个值写入 TIMG0 的 CC0 寄存器
+            //    这相当于“软件拍照”，把 CTR 的值锁存到 CC0
+            DL_TimerG_setCaptureCompareValue(TIMG0, timg0_cnt, DL_TIMER_CC_0_INDEX);
+            
+            // 后续处理...
+            break;
+        }
+        default:
+            break;
+    }
+}
+
+
+======================DS 设置 tima0 的cc1值 ====================
+
+void TIMA0_IRQHandler(void)
+{
+    switch (DL_TimerA_getPendingInterrupt(TIMA0)) {
+        case DL_TIMERA_IIDX_CC0_DN:  // CC0 捕获到外部信号
+        {
+            // 1. 读取 CC0 捕获值
+            uint32_t t1 = DL_TimerA_getCaptureCompareValue(TIMA0, DL_TIMER_CC_0_INDEX);
+            
+            // 2. 计算 10us 对应的计数值
+            //    假设 TIMA0 时钟 = 80MHz（需根据你的实际配置调整）
+            uint32_t ticks_10us = 10 * (TIMA0_CLK_FREQ / 1000000);
+            
+            // 3. 向下计数：目标值 = 当前值 - 10us 对应的计数
+            uint32_t cc1_val = t1 - ticks_10us;
+            
+            // 4. 写入 CC1，并开 CC1 向下比较中断
+            DL_TimerA_setCaptureCompareValue(TIMA0, cc1_val, DL_TIMER_CC_1_INDEX);
+            DL_TimerA_enableInterrupt(TIMA0, DL_TIMERA_INTERRUPT_CC1_DN_EVENT);
+            
+            break;
+        }
+        case DL_TIMERA_IIDX_CC1_DN:  // 10us 后触发
+        {
+            // 到达目标时间点，执行你的操作
+            // ...
+            break;
+        }
+        default:
+            break;
+    }
+}
+
+CC1 必须配置为“比较模式”，不是捕获模式。如果 CC1 的 COC 位被设成了捕获（Capture），软件写入会被硬件忽略。
+在 SysConfig 里把 CC1 配成比较输出，或者手动写 CCCTL_01.CC1.COC = 0（比较模式）。
+
+// 将 CC1 配置为比较输出模式
+DL_TimerA_setCaptureCompareOutCtl(TIMA0,
+    DL_TIMER_CC_OCTL_INIT_VAL_LOW,      // 初始输出电平
+    DL_TIMER_CC_OCTL_INV_OUT_DISABLED,  // 不反转输出
+    DL_TIMER_CC_OCTL_SRC_FUNCVAL,       // 输出源选择为功能值（比较模式的关键）
+    DL_TIMERA_CAPTURE_COMPARE_1_INDEX); // 针对 CC1 通道
+
+
+==================ds =====TIMA0发布事件给TIMG0===================================
+
+在你的 TIMG0 初始化代码里，手动配置 TIMA0 的发布者寄存器。假设你选通用事件通道 1
+
+// 让 TIMA0 在捕获到外部上升沿时，通过通道 1 发布事件
+TIMA0->FPUB_0 = 1;  // 发布到通用事件通道 1
+
+具体要发布哪个事件（比如是 CC0 的捕获事件还是 CC1 的），需要查 TIMA0 的事件发布配置表，把对应的 GEN_EVENT 位使能。
+
+---
+
+关键一步在 TIMG0 这边，要修改它的捕获输入源，让它不再看外部引脚，而是看事件通道。参考 TI 官方手册中 COMP 触发 TIMx 的示例：
+
+// 让 TIMG0 订阅通用事件通道 1
+TIMG0->FSUB_0 = 1;  // 订阅通道 1
+
+// 把 TIMG0 的捕获输入源从外部引脚改成 FSUB0
+// ISEL = 5 表示选择 FSUB0 作为输入
+DL_TimerG_setCaptureCompareInputSource(TIMG0, DL_TIMER_INPUT_CHAN_0, 5);
+
+如果 API 不存在，就直接操作寄存器：把 TIMG0 对应捕获通道的 IFCTL_xy 寄存器里的 ISEL 位域写为 5（选 FSUB0）或 6（选 FSUB1）
+
+
+
+
+===============DS==两个已知的坑==================================
+
+
+         SDK 的 DL_TimerG_initCaptureTriggerMode 有 bug：TI 社区确认，SDK 2.04.00.06 里这个函数对向上计数捕获模式的支持有问题，可能不会正确写入捕获控制寄存器。解决方法是手动补一行：
+
+
+         DL_Timer_setCaptureCompareCtl(TIMG0, 
+             DL_TIMER_CC_MODE_CAPTURE,
+             (DL_TIMER_CC_ZCOND_NONE | DL_TIMER_CC_ACOND_TIMCLK |
+              DL_TIMER_CC_LCOND_NONE | DL_TIMER_CC_CCOND_TRIG_RISE));
+         DL_TIMER_CC_MODE_CAPTURE：设置 COC 位为捕获模式。
+
+         DL_TIMER_CC_ZCOND_NONE：设置 ZCOND 位，表示归零条件为“无”。
+
+         DL_TIMER_CC_ACOND_TIMCLK：设置 ACOND 位，表示每个时钟节拍都产生推进脉冲。
+
+         DL_TIMER_CC_LCOND_NONE：设置 LCOND 位，表示装载条件为“无”。
+
+         DL_TIMER_CC_CCOND_TRIG_RISE：设置 CCOND 位，表示在上升沿触发捕获。
+
+
+---
+
+
+SysConfig 的“事件触发捕获”功能不完整：有开发者尝试在 SysConfig 里把捕获触发配置成“订阅 GPIO 事件”，结果 ISR 根本不触发。所以不要指望 SysConfig 能搞定，一定要手动改代码。
+
+简单说
+在 SysConfig 里配好 TIMA0 的发布通道和 TIMG0 的订阅通道，然后在生成的代码里手动加上 IFCTL_xy.ISEL = 5 这一句，把 TIMG0 的捕获输入从引脚切到事件通道
+
+
+
+---
+
+硬件限制确实存在：一个定时器只有一个计数器，某些高级功能（比如两个独立的边沿计数触发源）不能同时生效。
+
+但很多情况是 SysConfig 过度保守：比如用同一个定时器的不同 CC 通道分别做捕获和比较，硬件上完全可行（TIMA 有 4 个独立 CC 通道，每个都能独立配置为捕获或比较），只是 SysConfig 的规则不允许你同时选。
+
+所以你的做法是：用 SysConfig 生成基础初始化，再手动补寄存器把 CC1 改成比较模式。硬件能力允许，SysConfig 的保守规则被绕开了，功能就能跑起来。
+
+
+
+
+
+
+

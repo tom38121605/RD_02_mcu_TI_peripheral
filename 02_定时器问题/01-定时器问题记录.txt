@@ -12,4 +12,47 @@
 
 
 
+===============DS==两个已知的坑==================================
+
+
+         SDK 的 DL_TimerG_initCaptureTriggerMode 有 bug：TI 社区确认，SDK 2.04.00.06 里这个函数对向上计数捕获模式的支持有问题，可能不会正确写入捕获控制寄存器。解决方法是手动补一行：
+
+
+         DL_Timer_setCaptureCompareCtl(TIMG0, 
+             DL_TIMER_CC_MODE_CAPTURE,
+             (DL_TIMER_CC_ZCOND_NONE | DL_TIMER_CC_ACOND_TIMCLK |
+              DL_TIMER_CC_LCOND_NONE | DL_TIMER_CC_CCOND_TRIG_RISE));
+         DL_TIMER_CC_MODE_CAPTURE：设置 COC 位为捕获模式。
+
+         DL_TIMER_CC_ZCOND_NONE：设置 ZCOND 位，表示归零条件为“无”。
+
+         DL_TIMER_CC_ACOND_TIMCLK：设置 ACOND 位，表示每个时钟节拍都产生推进脉冲。
+
+         DL_TIMER_CC_LCOND_NONE：设置 LCOND 位，表示装载条件为“无”。
+
+         DL_TIMER_CC_CCOND_TRIG_RISE：设置 CCOND 位，表示在上升沿触发捕获。
+
+
+---
+
+
+SysConfig 的“事件触发捕获”功能不完整：有开发者尝试在 SysConfig 里把捕获触发配置成“订阅 GPIO 事件”，结果 ISR 根本不触发。所以不要指望 SysConfig 能搞定，一定要手动改代码。
+
+简单说
+在 SysConfig 里配好 TIMA0 的发布通道和 TIMG0 的订阅通道，然后在生成的代码里手动加上 IFCTL_xy.ISEL = 5 这一句，把 TIMG0 的捕获输入从引脚切到事件通道
+
+
+
+---
+
+硬件限制确实存在：一个定时器只有一个计数器，某些高级功能（比如两个独立的边沿计数触发源）不能同时生效。
+
+但很多情况是 SysConfig 过度保守：比如用同一个定时器的不同 CC 通道分别做捕获和比较，硬件上完全可行（TIMA 有 4 个独立 CC 通道，每个都能独立配置为捕获或比较），只是 SysConfig 的规则不允许你同时选。
+
+所以你的做法是：用 SysConfig 生成基础初始化，再手动补寄存器把 CC1 改成比较模式。硬件能力允许，SysConfig 的保守规则被绕开了，功能就能跑起来。
+
+
+
+
+
 
