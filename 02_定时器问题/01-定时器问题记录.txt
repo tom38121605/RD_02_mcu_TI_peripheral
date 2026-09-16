@@ -19,6 +19,7 @@
              DL_TIMER_CC_MODE_CAPTURE,
              (DL_TIMER_CC_ZCOND_NONE | DL_TIMER_CC_ACOND_TIMCLK |
               DL_TIMER_CC_LCOND_NONE | DL_TIMER_CC_CCOND_TRIG_RISE));
+
          DL_TIMER_CC_MODE_CAPTURE：设置 COC 位为捕获模式。
 
          DL_TIMER_CC_ZCOND_NONE：设置 ZCOND 位，表示归零条件为“无”。

@@ -6,3 +6,50 @@ https://e2e.ti.com/support/microcontrollers/arm-based-microcontrollers-group/arm
 
 定时器cc比较功能，官网说用pwm替代
 
+
+----------------------------------------------------------------------------
+
+MSPM0G3507: Timer compare mode
+
+Hi Team,
+
+I want to try the timer in compare mode without any external interrupt output. For example I want to load two different values into  the timer and need to enter the interrupt routine when timer count reaches the desire value.
+我想在无任何外部中断输出的情况下，尝试使用比较模式下的定时器。例如，我想将两个不同的值加载到定时器中，并在定时器计数达到期望值时进入中断程序。
+
+it is very helpful if can have some examples.
+
+Kind regards
+
+--------------------------------------------------------------------------
+
+Helic Chi over 2 years ago
+Hi, Staneslouse
+
+Based on the SDK demo code: timx_timer_mode_pwm_edge_sleep_LP_MSPM0G3507_nortos_ticlang
+You can enable two Channel x capture or compare up/down event interrupt.
+And then use this code to disable PWM output of Timer. The value is depending on the PWM channel you are using.
+
+      PULSE_PWM_INST->COMMONREGS.ODIS = 0x03;
+
+Also, you can reset the GPIO initialized by sysconfig (two PWM output Pin).
+
+
+基于SDK演示代码：timx_timer_mode_pwm_edge_sleep_LP_MSPM0G3507_nortos_ticlang，您可以启用两个通道x来捕获或比较上升/下降事件中断。
+然后使用此代码禁用定时器的PWM输出。该值取决于您正在使用的PWM通道。
+      PULSE_PWM_INST->COMMONREGS.ODIS = 0x03;
+此外，您还可以重置由sysconfig初始化的GPIO（两个PWM输出引脚）。
+
+---------------------------
+
+Or you can manually config the timer by referring the configuration made by: timx_timer_mode_pwm_edge_sleep_LP_MSPM0G3507_nortos_ticlang
+或者，您可以参考以下配置来手动配置定时器：timx_timer_mode_pwm_edge_sleep_LP_MSPM0G3507_nortos_ticlang
+
+
+Regards,
+
+
+
+
+
+
+
