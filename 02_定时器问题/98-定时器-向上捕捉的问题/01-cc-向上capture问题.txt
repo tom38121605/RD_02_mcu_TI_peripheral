@@ -12,16 +12,25 @@ timx_timer_mode_capture_edge_capture_LP_MSPM0G3507_nortos_ticlang
 Hi Sir
 
 I use timx_timer_mode_capture_edge_capture_LP_MSPM0G3507_nortos_ticlang SDK example,
+
 the default setting are DOWN counting, rising edge detection and down event(interrupt), but my need is up counting, falling edge detection and up event(interrupt),
+
 so I make some modifications as below, after these modifications, I execute the program and the program enter the “DL_TIMERG_IIDX_CC0_UP” directly, even if PB2 still In high level.
+
 In my understanding when I toggle the switch to low level, the program will enter CC0_UP interrupt, but the program always enter interrupt when I run the program.
 
  Is there something I've missed?
 
 我使用了timx_timer_mode_capture_edge_capture_LP_MSPM0G3507_nortos_ticlang SDK示例，
-默认设置为降计数、上升沿检测和下降事件（中断），但我的需求是升计数、下降沿检测和上升事件（中断），
+
+默认设置为：降计数、上升沿检测和下降事件（中断），
+
+但我的需求是：升计数、下降沿检测和上升事件（中断），
+
 因此我做了如下修改，修改后执行程序，程序会直接进入“DL_TIMERG_IIDX_CC0_UP”状态，即使PB2仍处于高电平。
+
 据我理解，当将开关切换至低电平时，程序应进入CC0_UP中断，但我运行程序时程序总是进入中断。
+
  我是不是漏掉了什么？
 
 
@@ -53,7 +62,7 @@ anyway thanks again.
 43     __attribute__((unused)) volatile static uint32_t edgeCapture;
 44     SYSCFG_DL_init();
 45
-46     TIMG6->COUNTERREGS.CCCTL_01[0]=0x20002;                         //增加
+46     TIMG6->COUNTERREGS.CCCTL_01[0]=0x20002;                         //add
 47
 48     NVIC_EnableIRQ(CAPTURE_0_INST_INT_IRQN);
 49
