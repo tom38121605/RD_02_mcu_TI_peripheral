@@ -2,8 +2,8 @@
 这里的修改是指： 修改成内部clock的compare
 
 1.   设置capture和compare
-     CCCTL_01.17 :     0 -- compare,    1 --  capture                                                              //修改ok     same 0
-     CCCTL_01.0:       0  -- 关闭捕获，  1 --  上升沿捕获                                                           //修改ok   same 0
+     CCCTL_01.17 :     0 -- compare,    1 --  capture                                                                 //修改ok     same 0
+     CCCTL_01.2-0:     0  -- 关闭捕获，  1 --  上升沿捕获 ，  2 --  下降沿捕获，  3 -- both adge       //修改ok   same 0
 
 2.  compare的输入源：
      IFCTL_01.3-0:       0 -- pwm,    2 --  捕捉  ，   3 --  内部时钟的compare用                          //修改OK  2 -> 3
@@ -20,7 +20,7 @@
      CCPD.0:       0 --输入,    1  --  输出
 
 6.  定时器使能后的计数值， 从哪个方向计数
-     CTRCTL.28:        0 --LOAD,    1  --  current，  2 -- zero                                                       //修改考虑 (暂没修改)
+     CTRCTL.28:        0 --LOAD,    1  --  current，    2 -- zero                                                    //修改考虑 (暂没修改)
      CTRCTL.5-4:       0 --down,    1  --  up/down，  2 -- up                                                       //修改考虑 
 
 
