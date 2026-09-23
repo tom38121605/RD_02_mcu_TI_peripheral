@@ -2,7 +2,7 @@
 
 1.   進入sc界面  （先设置MFPCLK）    
      
-    点中左边的SYSTL
+    点中左边的SYSCTL
 
     MFPCLK设置：
         enable MFPCLK：    勾选 

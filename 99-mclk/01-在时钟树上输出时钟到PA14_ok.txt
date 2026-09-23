@@ -26,7 +26,7 @@
 
         在EXCLKMUX， 选择 SYSPLL1
         点选 右上角的 clk_out, 在左下角显示一列CLK_OUT的配置项
-            nable clockout：  勾选
+            enable clockout：  勾选
 
            pinmux ... 配置：
                CLK_OUT:    PA14/7
