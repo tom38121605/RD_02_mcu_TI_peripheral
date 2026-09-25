@@ -23,6 +23,7 @@
 6.  定时器使能后的计数值， 从哪个方向计数    （ TIMA0->COUNTERREGS.CTRCTL ）
      CTRCTL.29-28:     0 --LOAD,    1  --  current，    2 -- zero                                                    //修改考虑 (暂没修改)
      CTRCTL.5-4:        0 --down,     1  --  up/down，  2 -- up                                                       //修改考虑 
+     CTRCTL.0:           0 --停止定时器,     1  --  开启定时器                                                         
 
 
 7.  设置定时器的捕捉引脚，pwm引脚                                                                                          //修改OK (直接注释)
