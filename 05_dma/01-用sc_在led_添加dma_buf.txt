@@ -1,0 +1,113 @@
+
+数据流是两个数组： isrc[10]（递增）   -->  idest[10] （递增）
+
+
+1.   進入sc界面  （设置完毕后，保存sc到当前工程）
+  
+      点中左边的DMA  -- 点击ADD  --   会自动跳出下面 DMA Channel的ADD界面   --  点击ADD  --  会自动跳出 DMA_CH0 
+
+     Channel overview设置：
+        Channel 0 ：    DMA    (要在下面的Pinmux中设置)
+
+     trigger type：    External dma channel          (默认)
+     trigger select：  SW                                    (默认)
+     Address mode：  block addr to block addr
+
+     source length：                       word （4bytes）
+     source addr direction：           increment
+     destination length：                word （4bytes）
+     destination addr direction：    increment
+
+     transfer mode：   block
+
+     interrupt configure 设置：   
+        enable channel interruptl：    勾选
+
+
+    Pinmux 设置：  
+        dma channel：    any(DMA_CH0)
+
+
+    //debug configuration 设置：   
+        debug enable on swd pins：    勾选      (默认)
+
+
+
+2. keil 魔法棒中设置：  勾选 “reset and run”
+
+
+3. 在main.c中添加下面的代码
+
+      #include "ti_msp_dl_config.h"
+
+      #define DMA_TRANSFER_SIZE_WORDS (16)
+
+      const uint32_t gSrcData[DMA_TRANSFER_SIZE_WORDS] = {0x00000000, 0x10101010,
+            0x20202020, 0x30303030, 0x40404040, 0x50505050, 0x60606060, 0x70707070,
+            0x80808080, 0x90909090, 0xA0A0A0A0, 0xB0B0B0B0, 0xC0C0C0C0, 0xD0D0D0D0,
+            0xE0E0E0E0, 0xF0F0F0F0};
+      uint32_t gDstData[DMA_TRANSFER_SIZE_WORDS];
+
+      volatile bool flg_dmairq = false;
+      volatile bool gVerifyResult           = false;
+
+
+      int main(void)
+      {
+
+            SYSCFG_DL_init();
+         
+            DL_GPIO_setPins( LED_PORT, LED_PIN_0_PIN);
+
+
+            NVIC_EnableIRQ(DMA_INT_IRQn);
+
+
+            DL_DMA_setSrcAddr(DMA, DMA_CH0_CHAN_ID, (uint32_t) &gSrcData[0]);
+            DL_DMA_setDestAddr(DMA, DMA_CH0_CHAN_ID, (uint32_t) &gDstData[0]);
+            
+            DL_DMA_setTransferSize( DMA, DMA_CH0_CHAN_ID, sizeof(gSrcData) / sizeof(uint32_t) );
+            DL_DMA_enableChannel(DMA, DMA_CH0_CHAN_ID);
+
+
+            flg_dmairq = false;
+            DL_DMA_startTransfer(DMA, DMA_CH0_CHAN_ID);
+
+            while (flg_dmairq == false) 
+            {
+                  ;//__WFE();
+            }
+
+            gVerifyResult = true;
+            for (int i = 0; i < DMA_TRANSFER_SIZE_WORDS; i++) 
+            {
+                  gVerifyResult &= gSrcData[i] == gDstData[i];
+            }
+
+            if(gVerifyResult)
+                DL_GPIO_clearPins( LED_PORT, LED_PIN_0_PIN);
+
+
+            __BKPT(0);
+
+            while (1) 
+            {
+                ;//__WFI();
+            }
+            
+      }
+
+      void DMA_IRQHandler(void)
+      {
+            /* Example interrupt code -- just used to break the WFI in this example */
+            switch (DL_DMA_getPendingInterrupt(DMA)) {
+                  case DL_DMA_EVENT_IIDX_DMACH0:
+                        flg_dmairq = true;
+                        break;
+                  default:
+                        break;
+            }
+      }
+
+
+
