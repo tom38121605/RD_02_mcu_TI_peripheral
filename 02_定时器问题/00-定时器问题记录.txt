@@ -9,6 +9,14 @@
 
 
 
+问题1. 官网sdkbug：的官网sdkDL_Timer_setCCPDirection函数不严谨，应该是$=,只更新CC0的输入输出方向
+
+    //设置CCPD，CCP0设置为输入  
+    //DL_Timer_setCCPDirection(gptimer, captConfig.ccpInputDir);       // DL_TIMER_CC0_INPUT   // 0<<0
+           gptimer->COMMONREGS.CCPD $=0<<0;                             //CCP0设置为输入
+
+
+
 ===============DS==3个已知的坑==================================
 
 
