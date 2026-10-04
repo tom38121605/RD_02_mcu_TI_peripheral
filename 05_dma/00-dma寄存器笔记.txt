@@ -1,0 +1,47 @@
+
+1.  设置 dma的源地址
+     dma->DMACHAN[0].DMASA = gSrcData[0];
+
+1.   设置 dma的目标地址
+     dma->DMACHAN[0].DMADA = gDstData[0];
+
+2.  设置dma通道0的字节长度为16
+     dma->DMACHAN[0].DMASZ =16;
+     
+3.  使能  DMA的 通道0
+     dma->DMACHAN[0].DMACTL  |=  1<<1;
+
+4.  开启dma传输
+     dma->DMACHAN[0].DMACTL |=1<<0;   
+
+5.  清除通道0的中断标志
+     dma->CPU_INT.ICLR = 1<<0;
+
+6.  使能通道0的中断
+     dma->CPU_INT.IMASK |=  1<<0;                                                      
+
+7.  设置 DMATCTL, 软件触发， 外部触发
+      dma->DMATRIG[0].DMATCTL $= 000000<<0 | 0<<7;  
+
+8. 设置DMACTL, 传输模式为block ，  extend模式为普通模式，
+       dma->DMACHAN[0].DMACTL =  1<<28 |  0<<24 ;
+
+9.  设置源目both数据宽度为4个字节 1
+       dma->DMACHAN[0].DMACTL =  0011<<20 |  0011<<16  ;
+
+10.  设置源目both步长为+1
+       dma->DMACHAN[0].DMACTL =  010<<12 |  010<<8  ;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
