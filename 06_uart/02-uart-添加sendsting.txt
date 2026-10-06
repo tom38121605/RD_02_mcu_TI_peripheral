@@ -1,13 +1,38 @@
 
-1.   進入sc界面  ：  （同 06-01-uart-echo.txt）
+1.   進入sc界面   （设置完毕后，保存sc到当前工程）
+
+     点中左边的uart  -- 点击ADD  --   会自动跳出 uart_0
+
+     Clock source：   BUSCLK      (其他时钟源也应该可以考虑)    //默认32M
+     clock divider：   divide by 1     //默认32M
+
+     Baud rate：    2000000
+ 
+    advanced configuration 设置：
+       uart mode ：   normal  uart  mode    (默认)
+       communication direction：       tx and rx      (默认)
+
+
+    interrupt configuration设置：
+       enable interrupts：     receive 
+       interrupt priority；     default                  (默认)
+
+
+    Pinmux 设置：
+        uart peripheral：   UART0
+        RX pin：      PA11 
+        TX pin：      PA10 
+
 
 2. keil 魔法棒中设置：  勾选 “reset and run”
 
 
 3. 在main.c中添加下面的代码
 
+         #include "ti_msp_dl_config.h"
          #include "stdio.h"
          #include "string.h"
+
          void SendString(char *str);
          char txBuf[100];
 
@@ -20,6 +45,23 @@
 
          }
              
+
+
+         void UART_0_INST_IRQHandler(void)
+         {
+             switch (DL_UART_Main_getPendingInterrupt(UART_0_INST)) 
+             {
+                 case DL_UART_MAIN_IIDX_RX:
+
+                     gEchoData = DL_UART_Main_receiveData(UART_0_INST);
+                     DL_UART_Main_transmitData(UART_0_INST, gEchoData);
+                     break;
+                 default:
+                     break;
+             }
+         }
+
+
          void SendString(char *str)
          {
              while(*str != '\0')
@@ -27,10 +69,6 @@
                  DL_UART_Main_transmitDataBlocking(UART_0_INST, *str++);
              }
          }
-
-
-
-
 
 
 

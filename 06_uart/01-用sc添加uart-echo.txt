@@ -12,18 +12,15 @@
        uart mode ：   normal  uart  mode    (默认)
        communication direction：       tx and rx      (默认)
 
- 
-    optional  configuration 设置：
-       trigger mode：  trigger will auto step to  next memory converson register    (一个通道转换结束后，会自动触发下一个通道)
-
     interrupt configuration设置：
        enable interrupts：     receive 
        interrupt priority；     default                  (默认)
 
 
     Pinmux 设置：
-        adc12 peripheral：    ADC0
-        adc12 channel 2 pin： PA25/26   
+        uart peripheral：   UART0
+        RX pin：      PA11 
+        TX pin：      PA10 
 
 
 2. keil 魔法棒中设置：  勾选 “reset and run”

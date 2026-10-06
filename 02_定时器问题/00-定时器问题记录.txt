@@ -16,6 +16,27 @@
            gptimer->COMMONREGS.CCPD $=0<<0;                             //CCP0设置为输入
 
 
+问题2：下面是否重复
+
+    TIMA0->COUNTERREGS.CCCTL_01[0]  |= 000<<4 ；  //ACOND计数节奏每个 TIMCLK 走一步
+    TIMA0->COUNTERREGS.CTRCTL |= 000<<10；         //计数节奏听通道 0 的ACOND（每个TIMCLK）
+
+答：  ti 跟stm32不一样， stm32计数值只跟内部时钟的clock走。  ti的计数值，可选择跟某个通道的外部引脚走
+        举个例子，定时器时钟是1us一次，  stm32计数值10us走了10步。 ti的CAC选cc0的外部引脚，5us一个脉冲，10us计数值只走了2步。
+
+
+问题3：  把向下计数，修改成向上计数，的修改点
+     。向上计数   CTRCT.6-4
+     。从0计数    CTRCT.29-28
+     。使能up中断
+     。up中断处理
+     。中断后，计数值置0
+     。iperiod = icc0_val
+
+
+
+
+
 
 ===============DS==3个已知的坑==================================
 

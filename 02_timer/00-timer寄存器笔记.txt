@@ -9,6 +9,7 @@
 
 2.  compare的输入源： ( TIMA0->COUNTERREGS.IFCTL_01 )
      IFCTL_01.3-0:       0 -- pwm,    2 --  捕捉  ，   3 --  内部时钟的compare用                          //修改OK  2 -> 3
+     IFCTL_01.7:          0 -- 不反相,   1 --  反相                       
      CCCTL_01.6-4:     0  -- 每个timclk，  1 --  上升沿 ，  2 --  下升沿，  3 -- both adge            //修改OK  1 -> 0
      
 3.  输出pwm的方式： （ gptimer->COUNTERREGS.OCTL_01 ）
@@ -20,8 +21,8 @@
 5.  设置CCP0的方向  ( TIMA0->COMMONREGS.CCPD )
      CCPD.0:       0 --输入,    1  --  输出
 
-6.  定时器使能后的计数值， 从哪个方向计数    （ TIMA0->COUNTERREGS.CTRCTL ）
-     CTRCTL.29-28:     0 --LOAD,    1  --  current，    2 -- zero                                                    //修改考虑 (暂没修改)
+6.  定时器使能后的计数值，从哪里开始计数， 从哪个方向计数    （ TIMA0->COUNTERREGS.CTRCTL ）
+     CTRCTL.29-28:     0 --LOAD,    1  --  current，    2 -- zero                                                    //开启定时器时，从哪里开始计数
      CTRCTL.5-4:        0 --down,     1  --  up/down，  2 -- up                                                       //修改考虑 
      CTRCTL.0:           0 --停止定时器,     1  --  开启定时器                                                         
 
@@ -54,11 +55,28 @@
        TIMA0->CLKDIV = 001<<0;
        TIMA0->COMMONREGS.CPS = 3;
 
+12. 解锁和reset定时器， 解锁寄存器， 清reset标志， reset定时器
+     gptimer->GPRCM.RSTCTL = 1b<<24 | 1<<1 | 1<<0；
+
+13. 解锁和使能定时器power
+      gptimer->GPRCM.PWREN =  26H<<24 | 1<<0；
+
+14. 使能定时器时钟
+        gptimer->COMMONREGS.CCLKCTL = 1<<0  ;
 
 
+15.   CCCTL 的ZCOND，ACOND，LCOND
 
+     //ZCOND, 什么条件下触发 计数值“归零脉冲”（也就是向上计数时计数器清零CTR=0, 向下计数时重载CTR=LOAD）
+     CCCTL_01.14-12:     0  -- 每个timclk，  1 --  CCP 或 Trigger 的上升沿 ，  2 --  下升沿，  3 -- both adge      
 
+     //ACOND, 什么条件下产生一个“前进脉冲”
+     CCCTL_01.6-4:     0  -- 每个timclk，  1 --  CCP 或 Trigger 的上升沿 ，  2 --  下升沿，  3 -- both adge    
 
+     //LCOND, 什么条件下触发 计数值CTR=LOAD
+     CCCTL_01.10-8:     0  -- 不动作，  1 --  CCP 或 Trigger 的上升沿 ，  2 --  下升沿，  3 -- both adge             
+
+ 
 
 
 
