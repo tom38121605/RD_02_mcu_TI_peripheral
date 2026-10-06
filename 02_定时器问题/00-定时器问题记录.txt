@@ -26,12 +26,17 @@
 
 
 问题3：  把向下计数，修改成向上计数，的修改点
+
      。向上计数   CTRCT.6-4
      。从0计数    CTRCT.29-28
      。使能up中断
      。up中断处理
      。中断后，计数值置0
      。iperiod = icc0_val
+
+
+问题4：改成count up后，为什么进入不了 up中断
+答：   要关掉zero中断， 开load和up中断   （其他跟 count down内部）
 
 
 
