@@ -64,7 +64,6 @@
 14. 使能定时器时钟
         gptimer->COMMONREGS.CCLKCTL = 1<<0  ;
 
-
 15.   CCCTL 的ZCOND，ACOND，LCOND
 
      //ZCOND, 什么条件下触发 计数值“归零脉冲”（也就是向上计数时计数器清零CTR=0, 向下计数时重载CTR=LOAD）
@@ -76,9 +75,15 @@
      //LCOND, 什么条件下触发 计数值CTR=LOAD
      CCCTL_01.10-8:     0  -- 不动作，  1 --  CCP 或 Trigger 的上升沿 ，  2 --  下升沿，  3 -- both adge             
 
- 
+
+ 16. 开启和停止定时器
+     CTRCTL.0:           0 --停止定时器,     1  --  开启定时器  
 
 
+17. 设置定时器irq优先级， 使能定时器irq
+
+     NVIC_SetPriority(COMPARE_0_INST_INT_IRQN, 1);     //设置定时器irq优先级为1 high  （0-3 数值越小，优先级越高）
+     NVIC_EnableIRQ(COMPARE_0_INST_INT_IRQN);        //使能定时器irq
 
 
 
