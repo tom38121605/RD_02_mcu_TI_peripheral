@@ -1,5 +1,29 @@
 
-这里的修改是指： 修改成内部clock的compare
+pwm和timer分频计算时钟频率：
+
+    分频后的时钟频率  ftime=  主频 80M / (div +1)  / (pscal +1)   = 80/ 2 / 4 = 10M
+
+    .clockSel = DL_TIMER_CLOCK_BUSCLK,         //1<<3          //80MHz
+    .divideRatio = DL_TIMER_CLOCK_DIVIDE_2,    //001<<0
+    .prescale = 3U                             //3
+
+
+
+timer频率计数：  （具体计算待完善  -- easy）
+
+    在sysconfig中直接设置
+
+
+
+
+PWM频率计数：
+   fpwm = ftime / period count /2  =   10M / 1000 /2  =  50Khz
+
+   .period count  = 1000
+
+
+
+
 
 1.   设置capture和compare  ( TIMA0->COUNTERREGS.CCCTL_01 )
      CCCTL_01.17 :     0 -- compare,    1 --  capture                                                                 //修改ok    same 0
