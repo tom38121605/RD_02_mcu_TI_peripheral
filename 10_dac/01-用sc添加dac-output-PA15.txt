@@ -13,10 +13,10 @@
     点中左边的DAC12 
 
     basic operation configuraion设置：
-        enable adc：     勾选   
+        enable DAC：     勾选   
         positive ref：     VDDA
         negative ref：    VSSA
-        enable adc output：     勾选   
+        enable DAC output：     勾选   
 
     advanced configuraion设置：
         output resolution：                 12-bit   
