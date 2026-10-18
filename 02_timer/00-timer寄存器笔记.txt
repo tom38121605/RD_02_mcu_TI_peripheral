@@ -1,27 +1,41 @@
+问1. LCOND 和 LCOND的关系：(待验证)
 
-pwm和timer分频计算时钟频率：
+    ZCOND 对应的是“数到底了”（Zero Event）
+    LCOND 对应的是“数到顶了”（Load Event）
 
-    分频后的时钟频率  ftime=  主频 80M / (div +1)  / (pscal +1)   = 80/ 2 / 4 = 10M
-
-    .clockSel = DL_TIMER_CLOCK_BUSCLK,         //1<<3          //80MHz
-    .divideRatio = DL_TIMER_CLOCK_DIVIDE_2,    //001<<0
-    .prescale = 3U                             //3
-
+    ZCOND：边沿来了 → CTR=0
+    LCOND：边沿来了 → CTR=LOAD
 
 
-timer频率计数：  （具体计算待完善  -- easy）
+问2：CTRCTL.1 的REPEAT （和自动重载有没有关系）
 
-    在sysconfig中直接设置
+        CTRCTL.1 的REPEAT：只关心计数到0时， 定时器是继续“活”着跑步，还是直接停掉  （跟自动重载没有关系）
 
+       ti 的普通timer好像没有自动重载的说法，下面只是两种特定的条件设置
+           ZCOND：边沿来了 → CTR=0
+           LCOND：边沿来了 → CTR=LOAD
 
-
-
-PWM频率计数：
-   fpwm = ftime / period count /2  =   10M / 1000 /2  =  50Khz
-
-   .period count  = 1000
+       关于pwm的自动重载： 不用设置， 向下计数到0时会自动跳到load（再往下计数），向上计数到load时会自动跳到0（再向上计数）
 
 
+问2. 如何计算timer和pwm的频率
+
+       1). pwm和timer分频计算时钟频率：
+
+          分频后的时钟频率  ftime=  主频 80M / (div +1)  / (pscal +1)   = 80/ 2 / 4 = 10M
+
+
+          .clockSel = DL_TIMER_CLOCK_BUSCLK,         //1<<3          //80MHz
+          .divideRatio = DL_TIMER_CLOCK_DIVIDE_2,    //001<<0
+          .prescale = 3U                             //3
+
+      2). timer频率计数：  （具体计算待完善  -- easy）
+          在sysconfig中直接设置
+
+      3). PWM频率计数：
+         fpwm = ftime / period count /2  =   10M / 1000 /2  =  50Khz
+
+         .period count  = 1000
 
 
 
@@ -90,19 +104,21 @@ PWM频率计数：
 
 15.   CCCTL 的ZCOND，ACOND，LCOND
 
-     //ZCOND, 什么条件下触发 计数值“归零脉冲”（也就是向上计数时计数器清零CTR=0, 向下计数时重载CTR=LOAD）
-     CCCTL_01.14-12:     0  -- 每个timclk，  1 --  CCP 或 Trigger 的上升沿 ，  2 --  下升沿，  3 -- both adge      
+     //ZCOND, 什么条件下触发 计数值CTR=0
+     CCCTL_01.14-12:     0  -- 禁止 (不产生CTR=0） ，  1 --  CCP 或 Trigger 的上升沿 ，  2 --  下升沿，  3 -- both adge      
+
+     //LCOND, 什么条件下触发 计数值CTR=LOAD 
+     CCCTL_01.10-8:     0  --  禁止 (不产生CTR=LOAD），  1 --  CCP 或 Trigger 的上升沿 ，  2 --  下升沿，  3 -- both adge             
 
      //ACOND, 什么条件下产生一个“前进脉冲”
      CCCTL_01.6-4:     0  -- 每个timclk，  1 --  CCP 或 Trigger 的上升沿 ，  2 --  下升沿，  3 -- both adge    
 
-     //LCOND, 什么条件下触发 计数值CTR=LOAD
-     CCCTL_01.10-8:     0  -- 不动作，  1 --  CCP 或 Trigger 的上升沿 ，  2 --  下升沿，  3 -- both adge             
 
 
 15. CTRCTL的CZC, CAC, CLC
-      。对应上面CCCTL 的ZCOND，ACOND，LCOND       //单个通道 如cc0的计数和自动重载关系
-      。CTRCTL的CZC, CAC, CLC                                    //定时器本身计数值的计数和自动重载关系
+      。对应上面CCCTL 的ZCOND，ACOND，LCOND       //单个通道 如cc0的计数值置0，置load的条件
+      。CTRCTL的CZC, CAC, CLC                                    //定时器本身计数值计数值置0，置load的条件
+
 
      这点跟stm32不一样，stm32只有一个计数器，就是定时器的计数值。 
      ti 每个通道都有一个计数器， 定时器的自己还有一个计数器，定时器的计数器可选择跟每个通道cc0一样，也可以选择其他的方式，如QEI模式 
@@ -120,16 +136,21 @@ PWM频率计数：
 
 18. 设置自动重载
      
-     CTRCTL的REPEAT跟自动重载没有关系，只表示计数到0时，是否继续计数
+    。 ti 的普通timer好像没有自动重载的说法，下面只是两种特定的条件设置
 
-     真正设置自动重载的是 CCCTL 的ZCOND 和 CTRCTL的CZC，
+        ZCOND：边沿来了 → CTR=0
+        LCOND：边沿来了 → CTR=LOAD 
 
-     即，什么条件下触发 计数值“归零脉冲”（也就是向上计数时计数器清零CTR=0, 向下计数时重载CTR=LOAD）
-           CCCTL_01.14-12:     0  -- 每个timclk，  1 --  CCP 或 Trigger 的上升沿 ，  2 --  下升沿，  3 -- both adge    
+    。CTRCTL.1 的REPEAT：只关心计数到0时， 定时器是继续“活”着跑步，还是直接停掉
+
+    。关于pwm的自动重载： 不用设置， 向下计数到0时会自动跳到load（再往下计数），向上计数到load时会自动跳到0（再向上计数）
 
 
-19. pwm是如果自动重载的 ？
-    （待完成  -- 先做一个pwm的寄存器版本）
+19. pwm是如果自动重载的   （待完善）
+    答： load值一直在，这个步需要考虑
+           cc0的门槛值上面是高电平，下面是低电平  -- 可设置 CCACT_01
+           cc0计数到终点时，重新回头计数   --  不用设置， 向下计数到0时会自动跳到load（再往下计数），向上计数到load时会自动跳到0（再向上计数）
+
 
 
 
