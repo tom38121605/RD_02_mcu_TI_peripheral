@@ -39,7 +39,30 @@
 答：   要关掉zero中断， 开load和up中断   （其他跟 count down内部）
 
 
+问题5：程序中设计delay_ms(1)翻转一次led灯，但实际是3.5ms翻转一次led的电平
 
+答：   关掉另一个定时器的中断，就正常了，但在定时器中断里面只打了一个flag，其它啥也没做
+         或把定时器的中断时间从1us一次，改成10us一次，变成1.1ms翻转一次led （接近正常）
+          
+         void TIMER_0_INST_IRQHandler(void)
+         {
+
+             DL_TIMER_IIDX iret = DL_TimerA_getPendingInterrupt(TIMER_0_INST);
+             
+             switch (iret)
+             {
+                case DL_TIMER_IIDX_ZERO:
+                
+                   //DL_GPIO_togglePins(LED_PORT,LED_PIN_0_PIN);
+                   flg_timer1 = 1;
+                   break;
+                   
+                default:
+                
+                   break;          
+             }
+
+         }
 
 
 
