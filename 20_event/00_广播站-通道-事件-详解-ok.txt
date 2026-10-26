@@ -1,6 +1,6 @@
 ﻿
 
-1. 可同时把  pub station 1   和  pub station 2 连接到 通道1  （即 zero 和 load事件同时连接到 通道1）
+1. 可同时把  pub station 1   和  pub station 2 连接到 通道1  （即 zero 和 load事件同时连接到 通道1） 
 1. 广播站和事件的关系： 事件  --  苹果，  广播站  --  装苹果的箩筐
 
 2. 下面是形象的比喻
