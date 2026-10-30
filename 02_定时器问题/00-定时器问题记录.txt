@@ -1,13 +1,9 @@
 
 
-1.  capture 向上捕获功能，没有调通 （向下可以）
+1.  capture 向上捕获功能，没有调通  
+    已解决：  参考 E:\GIT-REPO\RD_02_mcu_TI_txt\文本text_ti_module_test\tima0_capture_up\__capturedown改成captureup的问题和解决.txt
 
-2.  compare向上计数功能，没有调通  （向下可以）
-2.  compare 如何同时选cc0 和 cc1两个通道，没有调通   
-2. compare 内部clk触发，下面的设置没有用
-       number of edges to detect:        6000    //设置任何值在示波器上看都是看定时器14us后出cc0中断
-
-
+ 
 
 问题1. 官网sdkbug：的官网sdkDL_Timer_setCCPDirection函数不严谨，应该是$=,只更新CC0的输入输出方向
 
